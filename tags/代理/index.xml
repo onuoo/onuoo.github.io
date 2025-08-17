@@ -1,0 +1,230 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+    <channel>
+        <title>代理 on Myth&#39;s Blog | Myth 的小站</title>
+        <link>http://localhost:1313/tags/%E4%BB%A3%E7%90%86/</link>
+        <description>Recent content in 代理 on Myth&#39;s Blog | Myth 的小站</description>
+        <generator>Hugo -- gohugo.io</generator>
+        <language>zh-cn</language>
+        <lastBuildDate>Tue, 17 Oct 2023 00:00:00 +0000</lastBuildDate><atom:link href="http://localhost:1313/tags/%E4%BB%A3%E7%90%86/index.xml" rel="self" type="application/rss+xml" /><item>
+        <title>深入探究 Windows 系统代理设置</title>
+        <link>http://localhost:1313/p/windows-proxy/</link>
+        <pubDate>Tue, 17 Oct 2023 00:00:00 +0000</pubDate>
+        
+        <guid>http://localhost:1313/p/windows-proxy/</guid>
+        <description>&lt;img src="http://localhost:1313/p/windows-proxy/10.png" alt="Featured image of post 深入探究 Windows 系统代理设置" /&gt;&lt;p&gt;想必大家都经常用到 Windows 系统代理设置——即使没有亲自修改，多半也由软件代劳了。毕竟科学上网客户端干的事情通常都是：开启一个 HTTP 代理服务端，然后配置系统代理去设置去使用它。&lt;/p&gt;
+&lt;p&gt;但是，某些情况下，Windows 系统代理却会出现一些玄学问题。比如，使用 ZJU 官方的有线校网客户端，或是自己创建名称带有中文的 L2TP VPN 时，系统代理设置好像无效了——浏览器说什么也不肯通过代理访问互联网。只好借助 SwitchyOmega 这样的插件，但总觉得不爽。又或者，在使用 L2TP VPN 环境下使用 Clash Verge，也会出现系统代理无效的问题。&lt;/p&gt;
+&lt;p&gt;这篇文章通过试验，探究了 Windows 系统代理的一些细节，试图为以上问题找到答案。&lt;/p&gt;
+&lt;h2 id=&#34;最基本的情况无拨号连接&#34;&gt;最基本的情况——无拨号连接
+&lt;/h2&gt;&lt;p&gt;首先，我们来看看最基本的情况：没有任何拨号连接，即通过路由器直接上网。&lt;/p&gt;
+&lt;p&gt;我们使用 Clash for Windows，在 7890 端口上开启 HTTP 代理服务器。之后，不用 Clash for Windows 内置的功能，而是在设置 - 网络和 Internet - 代理中进行手动配置。&lt;/p&gt;
+&lt;div style=&#34;text-align:center&#34;&gt;&lt;img src=&#34;1.png&#34; width=400/&gt;&lt;/div&gt;
+&lt;p&gt;开启“使用代理服务器”后，我们可以发现 Clash log 中已经有浏览器的流量，这说明浏览器正在使用代理上网。&lt;/p&gt;
+&lt;p&gt;为了知其所以然，让我们看看此时在注册表里发生了什么：&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;http://localhost:1313/p/windows-proxy/2.png&#34;
+	width=&#34;2273&#34;
+	height=&#34;965&#34;
+	srcset=&#34;http://localhost:1313/p/windows-proxy/2_hu_719bd3d73d9fdd8d.png 480w, http://localhost:1313/p/windows-proxy/2_hu_fe11783615266ab4.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;235&#34;
+		data-flex-basis=&#34;565px&#34;
+	
+&gt;&lt;/p&gt;
+&lt;p&gt;可以发现，&lt;code&gt;HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Internet Settings&lt;/code&gt; 中的 &lt;code&gt;ProxyEnable&lt;/code&gt; 被设置为 &lt;code&gt;1&lt;/code&gt;，&lt;code&gt;ProxyServer&lt;/code&gt; 被设置为 &lt;code&gt;127.0.0.1:7890&lt;/code&gt;，&lt;code&gt;ProxyOverride&lt;/code&gt; 被设置为 &lt;code&gt;localhost; &amp;lt;local&amp;gt;&lt;/code&gt;。这三个值分别对应“使用代理服务器”、“代理 IP 地址 + 端口”、“不使用代理服务器的地址”这三个选项。&lt;/p&gt;
+&lt;h2 id=&#34;就这么简单吗还有设置&#34;&gt;就这么简单吗？——还有设置！
+&lt;/h2&gt;&lt;p&gt;要是就这么简单就好了。实际上，仔细观察注册表，就会发现还有设置！&lt;/p&gt;
+&lt;p&gt;进入 &lt;code&gt;HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Internet Settings\Connections&lt;/code&gt;，查看 &lt;code&gt;DefaultConnectionSettings&lt;/code&gt; 键的值，这是一个二进制：&lt;/p&gt;
+&lt;div style=&#34;text-align:center&#34;&gt;&lt;img src=&#34;3.png&#34; width=400/&gt;&lt;/div&gt;
+&lt;p&gt;诶！怎么又来一份代理设置！而且是一模一样的！&lt;/p&gt;
+&lt;p&gt;我们回到设置 - 网络和 Internet - 代理中，将端口从 7890 改成 7891，然后再看看注册表：&lt;code&gt;ProxyServer&lt;/code&gt; 变了，&lt;code&gt;DefaultConnectionSettings&lt;/code&gt; 也变了。此时浏览器也无法正常上网。看来在设置中的修改会同时影响这两个。&lt;/p&gt;
+&lt;p&gt;那么，浏览器上网的代理到底由哪个决定呢？我们直接在注册表修改 &lt;code&gt;DefaultConnectionSettings&lt;/code&gt;，将端口改回 7890，此时浏览器又可以正常上网了。看来 &lt;code&gt;DefaultConnectionSettings&lt;/code&gt; 决定浏览器上网的代理。&lt;/p&gt;
+&lt;p&gt;实际上，&lt;code&gt;DefaultConnectionSettings&lt;/code&gt; 对应着 Internet 属性 - 连接 - 局域网设置，这是从古老的 IE 那里流传下来的设置界面——即使现在 IE 已经没了但这个界面还在控制面板里。&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;http://localhost:1313/p/windows-proxy/4.png&#34;
+	width=&#34;1902&#34;
+	height=&#34;1318&#34;
+	srcset=&#34;http://localhost:1313/p/windows-proxy/4_hu_5b09352d026f2d0f.png 480w, http://localhost:1313/p/windows-proxy/4_hu_4cc74b694278212e.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;144&#34;
+		data-flex-basis=&#34;346px&#34;
+	
+&gt;&lt;/p&gt;
+&lt;p&gt;另外，还有一个有趣的现象——这两个键会互相影响。例如，初始情况下 &lt;code&gt;ProxyServer&lt;/code&gt; 和 &lt;code&gt;DefaultConnectionSettings&lt;/code&gt; 中的端口均为 7890，此时可以正常上网。此时修改 &lt;code&gt;ProxyServer&lt;/code&gt; 中的端口为 7899，就会发现不能上网了——奇怪，不是应该由 &lt;code&gt;DefaultConnectionSettings&lt;/code&gt; 决定吗？但此时再去检查 &lt;code&gt;DefaultConnectionSettings&lt;/code&gt;，发现也跟着变了。再把 &lt;code&gt;DefaultConnectionSettings&lt;/code&gt; 改回 7890，立马又可以上网了，不过 &lt;code&gt;ProxyServer&lt;/code&gt; 没有变回 7890。但打开设置后，&lt;code&gt;ProxyServer&lt;/code&gt; 也变回 7890 了。&lt;/p&gt;
+&lt;h2 id=&#34;拨号连接又来一份设置&#34;&gt;拨号连接——又来一份设置！
+&lt;/h2&gt;&lt;p&gt;进过一番讨论，无拨号的情况研究的差不多了——别急，还有拨号连接呢！&lt;/p&gt;
+&lt;p&gt;我们先复原所有代理设置，创建一个名为 ZJUVPN 的 L2TP VPN 并连接，然后重复一开始的过程：在设置 - 网络和 Internet - 代理中进行手动配置。此时的结果就和我们预想的大不相同了：没有用！还是在直连。查看注册表，更觉得古怪：&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;http://localhost:1313/p/windows-proxy/5.png&#34;
+	width=&#34;2278&#34;
+	height=&#34;862&#34;
+	srcset=&#34;http://localhost:1313/p/windows-proxy/5_hu_93cbc1d5ae723883.png 480w, http://localhost:1313/p/windows-proxy/5_hu_9d873d651f216d6a.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;264&#34;
+		data-flex-basis=&#34;634px&#34;
+	
+&gt;&lt;/p&gt;
+&lt;p&gt;首先，&lt;code&gt;ProxyServer&lt;/code&gt; 和 &lt;code&gt;ProxyOverride&lt;/code&gt; 消失了，只有 &lt;code&gt;ProxyEnable&lt;/code&gt; 还在，但是值是 0——这和说好的不一样啊，设置里代理不是启用状态吗？再看 &lt;code&gt;DefaultConnectionSettings&lt;/code&gt;，这个好像比较正常（此时在设置里更改还是可以改变 DefaultConnectionSettings 的值），但是不生效。不过，仔细看看 &lt;code&gt;HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Internet Settings\Connections&lt;/code&gt;，原因显而易见了：&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;http://localhost:1313/p/windows-proxy/6.png&#34;
+	width=&#34;2655&#34;
+	height=&#34;1147&#34;
+	srcset=&#34;http://localhost:1313/p/windows-proxy/6_hu_64b36420868b51b3.png 480w, http://localhost:1313/p/windows-proxy/6_hu_67909213b498d80b.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;231&#34;
+		data-flex-basis=&#34;555px&#34;
+	
+&gt;&lt;/p&gt;
+&lt;p&gt;Connections 中多出了一个名为 &lt;code&gt;ZJUVPN&lt;/code&gt; 的键，并且看起来是没有设置的。打开 Internet 属性 - 连接，也可以看到多了一个 ZJUVPN 配置项。&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;http://localhost:1313/p/windows-proxy/7.png&#34;
+	width=&#34;1841&#34;
+	height=&#34;1295&#34;
+	srcset=&#34;http://localhost:1313/p/windows-proxy/7_hu_7b7153b43b8afc9a.png 480w, http://localhost:1313/p/windows-proxy/7_hu_79e524efe1d2e0bf.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;142&#34;
+		data-flex-basis=&#34;341px&#34;
+	
+&gt;&lt;/p&gt;
+&lt;p&gt;看来，Windows 的 VPN 拨号连接的设置是独立的，而设置 - 网络和 Internet - 代理中的设置只对无拨号连接生效。要更改 VPN 拨号连接的代理设置，需要在 Internet 属性 - 连接中进行更改。当然，Windows 也做了相应的现代界面（经典的设置+控制面板）：&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;http://localhost:1313/p/windows-proxy/8.png&#34;
+	width=&#34;2152&#34;
+	height=&#34;1556&#34;
+	srcset=&#34;http://localhost:1313/p/windows-proxy/8_hu_10ad17e555b818d6.png 480w, http://localhost:1313/p/windows-proxy/8_hu_6f841da068574d1c.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;138&#34;
+		data-flex-basis=&#34;331px&#34;
+	
+&gt;&lt;/p&gt;
+&lt;p&gt;单独修改代理设置后，浏览器可以正常使用代理。可以看到，这一设置较为隐蔽。一些科学上网客户端也忽略了这一点，导致无法在使用 VPN 时正确设置系统代理。详见&lt;a class=&#34;link&#34; href=&#34;https://github.com/zzzgydi/clash-verge/issues/833&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;此链接&lt;/a&gt;。&lt;/p&gt;
+&lt;h2 id=&#34;中文名称锟斤拷的噩梦&#34;&gt;中文名称——锟斤拷的噩梦
+&lt;/h2&gt;&lt;p&gt;众所周知，使用 ZJU 有线校网客户端会导致梯子无法正常工作。我们来看看这究竟是为什么。（友情提示：有线校网客户端容易炸注册表，强烈建议在虚拟机内试验）&lt;/p&gt;
+&lt;p&gt;成功连接客户端后，在终端输入 &lt;code&gt;ipconfig&lt;/code&gt; 命令：&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt; 1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 3
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 4
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 5
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 6
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 7
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 8
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 9
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;10
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;11
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;12
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;13
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;14
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;15
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;16
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;17
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;18
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;19
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;20
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;21
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;22
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;23
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;24
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-fallback&#34; data-lang=&#34;fallback&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;C:\Users\Myth&amp;gt;ipconfig
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;Windows IP 配置
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;以太网适配器 Ethernet0:
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;   连接特定的 DNS 后缀 . . . . . . . : localdomain
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;   本地链接 IPv6 地址. . . . . . . . : fe80::8f6a:5577:f304:1fea%6
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;   IPv4 地址 . . . . . . . . . . . . : 192.168.163.132
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;   子网掩码  . . . . . . . . . . . . : 255.255.255.0
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;   默认网关. . . . . . . . . . . . . : 192.168.163.2
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;PPP 适配器 SRun3K专用宽带拨号连接:
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;   连接特定的 DNS 后缀 . . . . . . . :
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;   IPv4 地址 . . . . . . . . . . . . : 222.205.2.241
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;   子网掩码  . . . . . . . . . . . . : 255.255.255.255
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;   默认网关. . . . . . . . . . . . . : 0.0.0.0
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;以太网适配器 蓝牙网络连接:
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;   媒体状态  . . . . . . . . . . . . : 媒体已断开连接
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;   连接特定的 DNS 后缀 . . . . . . . :
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;有线客户端创建了一个名为“SRun3K专用宽带拨号连接”的 PPP 适配器，通过这个适配器访问互联网。此时手动配置设置 - 网络和 Internet - 代理。根据上一节的经验，我们知道 Internet 属性 - 连接中会出现一个新的配置&amp;hellip;嗯？&lt;/p&gt;
+&lt;div style=&#34;text-align:center&#34;&gt;&lt;img src=&#34;9.png&#34; width=400/&gt;&lt;/div&gt;
+&lt;p&gt;怎么空空如也？赶快看看注册表：&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;http://localhost:1313/p/windows-proxy/10.png&#34;
+	width=&#34;1884&#34;
+	height=&#34;1124&#34;
+	srcset=&#34;http://localhost:1313/p/windows-proxy/10_hu_e16354ca96d656d4.png 480w, http://localhost:1313/p/windows-proxy/10_hu_e0ee2ee3196f71cc.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;167&#34;
+		data-flex-basis=&#34;402px&#34;
+	
+&gt;&lt;/p&gt;
+&lt;p&gt;好家伙，乱码了！看来又是 GBK 和 Unicode 混用搞得鬼！有没有可能手动修改这个乱码键的值来设置代理呢？试了试发现不行。不过，手动新建一个名为“SRun3K专用宽带拨号连接”的键，然后把 &lt;code&gt;DefaultConnectionSettings&lt;/code&gt; 的值偷过来，发现可以正常使用代理了。&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;http://localhost:1313/p/windows-proxy/11.png&#34;
+	width=&#34;2000&#34;
+	height=&#34;1036&#34;
+	srcset=&#34;http://localhost:1313/p/windows-proxy/11_hu_c238829863db131b.png 480w, http://localhost:1313/p/windows-proxy/11_hu_5e036b09520b8d8f.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;193&#34;
+		data-flex-basis=&#34;463px&#34;
+	
+&gt;&lt;/p&gt;
+&lt;p&gt;自建中文名称的 L2TP VPN 也同理，同样会因为中文乱码造成无法设置系统代理的问题。&lt;/p&gt;
+&lt;h2 id=&#34;默认-vpn-名称含中文巨硬的坑人大法&#34;&gt;默认 VPN 名称含中文——巨硬的坑人大法
+&lt;/h2&gt;&lt;p&gt;写到这里有读者可能会好奇——为什么那么多人创建名称含中文的 L2TP VPN 呢？呵呵，这就要问问微软了。&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;http://localhost:1313/p/windows-proxy/12.png&#34;
+	width=&#34;1228&#34;
+	height=&#34;920&#34;
+	srcset=&#34;http://localhost:1313/p/windows-proxy/12_hu_c5f6ab5321aebc3a.png 480w, http://localhost:1313/p/windows-proxy/12_hu_b5200e7a853e7cbb.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;133&#34;
+		data-flex-basis=&#34;320px&#34;
+	
+&gt;&lt;/p&gt;
+&lt;p&gt;默认名称？？！！&lt;/p&gt;
+&lt;h2 id=&#34;总结复杂而混乱的代理设置体系&#34;&gt;总结——复杂而混乱的代理设置体系
+&lt;/h2&gt;&lt;p&gt;Windows 复杂而混乱的代理设置体系给我们带来了许多困难。用户和开发者很容易忽视拨号连接代理设置的独立性，造成种种问题，更何况还有中文乱码这个大坑。&lt;/p&gt;
+&lt;p&gt;在这方面的使用、开发中，必须要注意：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;程序在设置系统代理时，不可遗漏 &lt;code&gt;HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Internet Settings\Connections&lt;/code&gt; 中的键值。当然二进制的形式给开发者带来了更多困难。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;使用 VPN 时，要注意不能创建名称含有中文的网络适配器。&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+        </item>
+        
+    </channel>
+</rss>

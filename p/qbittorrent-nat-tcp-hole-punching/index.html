@@ -1,0 +1,1030 @@
+<!DOCTYPE html>
+<html lang="zh-cn" dir="ltr">
+    <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content="利用 NATMap 实现 TCP 打洞帮助 BT 做种">
+<title>通过 NAT TCP 打洞使 qBittorrent 获得公网 IPv4 的连接性体验</title>
+
+<link rel='canonical' href='http://localhost:1313/p/qbittorrent-nat-tcp-hole-punching/'>
+
+<link rel="stylesheet" href="/scss/style.min.c8f0bc3441053264ab8ecd461174f9dc23f22c447f8437a00ae40f8dcd56b34f.css"><meta property='og:title' content="通过 NAT TCP 打洞使 qBittorrent 获得公网 IPv4 的连接性体验">
+<meta property='og:description' content="利用 NATMap 实现 TCP 打洞帮助 BT 做种">
+<meta property='og:url' content='http://localhost:1313/p/qbittorrent-nat-tcp-hole-punching/'>
+<meta property='og:site_name' content='Myth&#39;s Blog | Myth 的小站'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='NAT' /><meta property='article:tag' content='打洞' /><meta property='article:tag' content='qBittorrent' /><meta property='article:tag' content='BT' /><meta property='article:tag' content='PT' /><meta property='article:published_time' content='2023-01-15T00:00:00&#43;00:00'/><meta property='article:modified_time' content='2023-01-15T00:00:00&#43;00:00'/><meta property='og:image' content='http://localhost:1313/p/qbittorrent-nat-tcp-hole-punching/1.png' />
+<meta name="twitter:title" content="通过 NAT TCP 打洞使 qBittorrent 获得公网 IPv4 的连接性体验">
+<meta name="twitter:description" content="利用 NATMap 实现 TCP 打洞帮助 BT 做种"><meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content='http://localhost:1313/p/qbittorrent-nat-tcp-hole-punching/1.png' /><link rel="icon" type="image/svg+xml" href="/favicon.svg">
+
+<link href="https://vjs.zencdn.net/7.20.3/video-js.css" rel="stylesheet" />
+
+<style>
+    @font-face {
+        font-family: 'MiSans';
+        src: url('/fonts/MiSans-Medium.woff');
+    }
+
+    :root {
+        --article-font-family: 'Lato', 'MiSans', var(--base-font-family);
+    }
+</style>
+
+
+<script defer src='https://static.cloudflareinsights.com/beacon.min.js'
+    data-cf-beacon='{"token": "d038f5a69162409d89c374de9fe3386c"}'>
+</script>
+
+
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-9S0MPLBY94"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-9S0MPLBY94');
+</script>
+
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="切换菜单">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar_hu_a008ef868a8cf25a.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+                    <span class="emoji">✔️</span>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">Myth&#39;s Blog | Myth 的小站</a></h1>
+            <h2 class="site-description">荒唐无聊正经有趣的大学生 | 业余 Minecraft 腐竹 | PTer</h2>
+        </div>
+    </header><ol class="menu-social">
+            
+                <li>
+                    <a 
+                        href='https://github.com/Mythologyli'
+                        target="_blank"
+                        title="1-GitHub"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg width="32px" height="32px" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+  <path d="M16 0.396c-8.839 0-16 7.167-16 16 0 7.073 4.584 13.068 10.937 15.183 0.803 0.151 1.093-0.344 1.093-0.772 0-0.38-0.009-1.385-0.015-2.719-4.453 0.964-5.391-2.151-5.391-2.151-0.729-1.844-1.781-2.339-1.781-2.339-1.448-0.989 0.115-0.968 0.115-0.968 1.604 0.109 2.448 1.645 2.448 1.645 1.427 2.448 3.744 1.74 4.661 1.328 0.14-1.031 0.557-1.74 1.011-2.135-3.552-0.401-7.287-1.776-7.287-7.907 0-1.751 0.62-3.177 1.645-4.297-0.177-0.401-0.719-2.031 0.141-4.235 0 0 1.339-0.427 4.4 1.641 1.281-0.355 2.641-0.532 4-0.541 1.36 0.009 2.719 0.187 4 0.541 3.043-2.068 4.381-1.641 4.381-1.641 0.859 2.204 0.317 3.833 0.161 4.235 1.015 1.12 1.635 2.547 1.635 4.297 0 6.145-3.74 7.5-7.296 7.891 0.556 0.479 1.077 1.464 1.077 2.959 0 2.14-0.020 3.864-0.020 4.385 0 0.416 0.28 0.916 1.104 0.755 6.4-2.093 10.979-8.093 10.979-15.156 0-8.833-7.161-16-16-16z"/>
+</svg>
+
+                        
+                    </a>
+                </li>
+            
+                <li>
+                    <a 
+                        href='https://live.bilibili.com/21461713'
+                        target="_blank"
+                        title="2-Bilibili"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg width="24px" height="24px" viewBox="0 0 24 24" role="img" xmlns="http://www.w3.org/2000/svg"><title>Bilibili icon</title><path d="M17.813 4.653h.854c1.51.054 2.769.578 3.773 1.574 1.004.995 1.524 2.249 1.56 3.76v7.36c-.036 1.51-.556 2.769-1.56 3.773s-2.262 1.524-3.773 1.56H5.333c-1.51-.036-2.769-.556-3.773-1.56S.036 18.858 0 17.347v-7.36c.036-1.511.556-2.765 1.56-3.76 1.004-.996 2.262-1.52 3.773-1.574h.774l-1.174-1.12a1.234 1.234 0 0 1-.373-.906c0-.356.124-.658.373-.907l.027-.027c.267-.249.573-.373.92-.373.347 0 .653.124.92.373L9.653 4.44c.071.071.134.142.187.213h4.267a.836.836 0 0 1 .16-.213l2.853-2.747c.267-.249.573-.373.92-.373.347 0 .662.151.929.4.267.249.391.551.391.907 0 .355-.124.657-.373.906zM5.333 7.24c-.746.018-1.373.276-1.88.773-.506.498-.769 1.13-.786 1.894v7.52c.017.764.28 1.395.786 1.893.507.498 1.134.756 1.88.773h13.334c.746-.017 1.373-.275 1.88-.773.506-.498.769-1.129.786-1.893v-7.52c-.017-.765-.28-1.396-.786-1.894-.507-.497-1.134-.755-1.88-.773zM8 11.107c.373 0 .684.124.933.373.25.249.383.569.4.96v1.173c-.017.391-.15.711-.4.96-.249.25-.56.374-.933.374s-.684-.125-.933-.374c-.25-.249-.383-.569-.4-.96V12.44c0-.373.129-.689.386-.947.258-.257.574-.386.947-.386zm8 0c.373 0 .684.124.933.373.25.249.383.569.4.96v1.173c-.017.391-.15.711-.4.96-.249.25-.56.374-.933.374s-.684-.125-.933-.374c-.25-.249-.383-.569-.4-.96V12.44c.017-.391.15-.711.4-.96.249-.249.56-.373.933-.373Z"/></svg>
+                        
+                    </a>
+                </li>
+            
+                <li>
+                    <a 
+                        href='https://twitter.com/Mythologyli'
+                        target="_blank"
+                        title="3-Twitter"
+                        rel="me"
+                    >
+                        
+                        
+                            <?xml version="1.0" encoding="iso-8859-1"?>
+<!-- Generator: Adobe Illustrator 19.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 viewBox="0 0 310 310" style="enable-background:new 0 0 310 310;" xml:space="preserve">
+<g id="XMLID_826_">
+	<path id="XMLID_827_" d="M302.973,57.388c-4.87,2.16-9.877,3.983-14.993,5.463c6.057-6.85,10.675-14.91,13.494-23.73
+		c0.632-1.977-0.023-4.141-1.648-5.434c-1.623-1.294-3.878-1.449-5.665-0.39c-10.865,6.444-22.587,11.075-34.878,13.783
+		c-12.381-12.098-29.197-18.983-46.581-18.983c-36.695,0-66.549,29.853-66.549,66.547c0,2.89,0.183,5.764,0.545,8.598
+		C101.163,99.244,58.83,76.863,29.76,41.204c-1.036-1.271-2.632-1.956-4.266-1.825c-1.635,0.128-3.104,1.05-3.93,2.467
+		c-5.896,10.117-9.013,21.688-9.013,33.461c0,16.035,5.725,31.249,15.838,43.137c-3.075-1.065-6.059-2.396-8.907-3.977
+		c-1.529-0.851-3.395-0.838-4.914,0.033c-1.52,0.871-2.473,2.473-2.513,4.224c-0.007,0.295-0.007,0.59-0.007,0.889
+		c0,23.935,12.882,45.484,32.577,57.229c-1.692-0.169-3.383-0.414-5.063-0.735c-1.732-0.331-3.513,0.276-4.681,1.597
+		c-1.17,1.32-1.557,3.16-1.018,4.84c7.29,22.76,26.059,39.501,48.749,44.605c-18.819,11.787-40.34,17.961-62.932,17.961
+		c-4.714,0-9.455-0.277-14.095-0.826c-2.305-0.274-4.509,1.087-5.294,3.279c-0.785,2.193,0.047,4.638,2.008,5.895
+		c29.023,18.609,62.582,28.445,97.047,28.445c67.754,0,110.139-31.95,133.764-58.753c29.46-33.421,46.356-77.658,46.356-121.367
+		c0-1.826-0.028-3.67-0.084-5.508c11.623-8.757,21.63-19.355,29.773-31.536c1.237-1.85,1.103-4.295-0.33-5.998
+		C307.394,57.037,305.009,56.486,302.973,57.388z"/>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+</svg>
+
+                        
+                    </a>
+                </li>
+            
+                <li>
+                    <a 
+                        href='https://music.163.com/#/user/home?id=477487301'
+                        target="_blank"
+                        title="5-Netease Cloud Music"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg width="24px" height="24px" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+    <g>
+        <path fill="none" d="M0 0h24v24H0z"/>
+        <path d="M12 22C6.477 22 2 17.523 2 12S6.477 2 12 2s10 4.477 10 10-4.477 10-10 10zm-1.086-10.432c.24-.84 1.075-1.541 1.99-1.648.187.694.388 1.373.545 2.063.053.23.037.495-.018.727-.213.892-1.248 1.242-1.978.685-.53-.405-.742-1.12-.539-1.827zm3.817-.197c-.125-.465-.256-.927-.393-1.42.5.13.908.36 1.255.698 1.257 1.221 1.385 3.3.294 4.731-1.135 1.49-3.155 2.134-5.028 1.605-2.302-.65-3.808-2.952-3.441-5.316.274-1.768 1.27-3.004 2.9-3.733.407-.182.58-.56.42-.93-.157-.364-.54-.504-.944-.343-2.721 1.089-4.32 4.134-3.67 6.987.713 3.118 3.495 5.163 6.675 4.859 1.732-.165 3.164-.948 4.216-2.347 1.506-2.002 1.297-4.783-.463-6.499-.666-.65-1.471-1.018-2.39-1.153-.083-.013-.217-.052-.232-.106-.087-.313-.18-.632-.206-.954-.029-.357.29-.64.65-.645.253-.003.434.13.603.3.303.3.704.322.988.062.29-.264.296-.678.018-1.008-.566-.672-1.586-.891-2.43-.523-.847.37-1.321 1.187-1.2 2.093.038.28.11.557.167.842l-.26.072c-.856.24-1.561.704-2.098 1.414-.921 1.22-.936 2.828-.041 3.947 1.274 1.594 3.747 1.284 4.523-.568.284-.676.275-1.368.087-2.065z"/>
+    </g>
+</svg>
+
+                        
+                    </a>
+                </li>
+            
+        </ol><ol class="menu" id="main-menu">
+        
+        
+        
+        <li >
+            <a href='/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="5 12 3 12 12 3 21 12 19 12" />
+  <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+  <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+</svg>
+
+
+
+                
+                <span>主页</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/archives/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>文章</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>搜索</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/links/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-link" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M10 14a3.5 3.5 0 0 0 5 0l4 -4a3.5 3.5 0 0 0 -5 -5l-.5 .5" />
+  <path d="M14 10a3.5 3.5 0 0 0 -5 0l-4 4a3.5 3.5 0 0 0 5 5l.5 -.5" />
+</svg>
+
+
+
+                
+                <span>链接</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/download/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>下载站</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/about/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="7" r="4" />
+  <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+</svg>
+
+
+
+                
+                <span>关于</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/board/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>留言板</span>
+            </a>
+        </li>
+        
+        <li class="menu-bottom-section">
+            <ol class="menu">
+                    
+                        <li id="i18n-switch">  
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-language" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M4 5h7" />
+  <path d="M9 3v2c0 4.418 -2.239 8 -5 8" />
+  <path d="M5 9c-.003 2.144 2.952 3.908 6.7 4" />
+  <path d="M12 20l4 -9l4 9" />
+  <path d="M19.1 18h-6.2" />
+</svg>
+
+
+
+                            <select name="language" title="language" onchange="window.location.href = this.selectedOptions[0].value">
+                                
+                                    <option value="http://localhost:1313/" selected>中文</option>
+                                
+                                    <option value="http://localhost:1313/en/" >English</option>
+                                
+                            </select>
+                        </li>
+                    
+                
+
+                
+                    <li id="dark-mode-toggle">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                        <span>暗色模式</span>
+                    </li>
+                
+            </ol>
+        </li>
+    </ol>
+</aside>
+
+    <aside class="sidebar right-sidebar sticky">
+        
+            
+                
+    <section class="widget archives">
+        <div class="widget-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+        </div>
+        <h2 class="widget-title section-title">目录</h2>
+        
+        <div class="widget--toc">
+            <nav id="TableOfContents">
+  <ol>
+    <li><a href="#网络环境分析">网络环境分析</a>
+      <ol>
+        <li><a href="#能获取到公网-ipv4-地址">能获取到公网 IPv4 地址</a></li>
+        <li><a href="#不能获取到公网-ipv4-地址">不能获取到公网 IPv4 地址</a></li>
+      </ol>
+    </li>
+    <li><a href="#nat-类型分析">NAT 类型分析</a>
+      <ol>
+        <li><a href="#完全圆锥形-natfull-cone-nat">完全圆锥形 NAT/Full Cone NAT</a></li>
+        <li><a href="#地址限制式圆锥形-nataddress-restricted-cone-nat">地址限制式圆锥形 NAT/Address Restricted Cone NAT</a></li>
+        <li><a href="#端口限制式圆锥形-natport-restricted-cone-nat">端口限制式圆锥形 NAT/Port Restricted Cone NAT</a></li>
+        <li><a href="#对称式-natsymmetric-nat">对称式 NAT/Symmetric NAT</a></li>
+      </ol>
+    </li>
+    <li><a href="#nat-tcp-打洞">NAT TCP 打洞</a></li>
+    <li><a href="#qbittorrent-场景下的应用方法">qBittorrent 场景下的应用方法</a></li>
+    <li><a href="#参考内容">参考内容</a></li>
+  </ol>
+</nav>
+        </div>
+    </section>
+
+            
+        
+    </aside>
+
+
+            <main class="main full-width">
+    <article class="has-image main-article">
+    <header class="article-header">
+        <div class="article-image">
+            <a href="/p/qbittorrent-nat-tcp-hole-punching/">
+                <img src="/p/qbittorrent-nat-tcp-hole-punching/1_hu_405663740014a0f9.png"
+                        srcset="/p/qbittorrent-nat-tcp-hole-punching/1_hu_405663740014a0f9.png 800w, /p/qbittorrent-nat-tcp-hole-punching/1_hu_b39e8fdb7a491d52.png 1600w"
+                        width="800" 
+                        height="390" 
+                        loading="lazy"
+                        alt="Featured image of post 通过 NAT TCP 打洞使 qBittorrent 获得公网 IPv4 的连接性体验" />
+                
+            </a>
+        </div>
+    
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/tech/" >
+                技术
+            </a>
+        
+    </header>
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/p/qbittorrent-nat-tcp-hole-punching/">通过 NAT TCP 打洞使 qBittorrent 获得公网 IPv4 的连接性体验</a>
+        </h2>
+    
+        
+        <h3 class="article-subtitle">
+            利用 NATMap 实现 TCP 打洞帮助 BT 做种
+        </h3>
+        
+    </div>
+
+    
+    
+    
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Jan 15, 2023</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    阅读时长: 7 分钟
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+    
+    <h2 id="网络环境分析">网络环境分析
+</h2><p>目前在国内，许多用户无法从运营商那里获取公网 IPv4 地址（点名中国移动）。对于 PT 玩家而言，这意味着他们在 IPv4 下的可连接性很差，无法获取很多上传量。在这种现状下，TCP 打洞是一种很好的解决方案。</p>
+<p>为了更好地理解 TCP 打洞帮助做种的原理，我们先来看看客户端和 Tracker 通信的过程。简单地讲，qBittorrent 之类的客户端将自己的 IP 地址和监听端口上报给 Tracker，Tracker 再将其发送给其他需要下载的 Peer 客户端。之后，Peer 客户端连接至相应的 IP 地址和端口，开始下载。需要注意的是，<strong>实际上，客户端往往不需要上报自己的 IPv4 地址，因为 Tracker 采用的是从 TCP 报文中获取到的 IPv4 地址</strong>。</p>
+<p>这一过程是很清晰的，但实际网络环境不会这么理想。我们考虑国内宽带的常见情况：通过 PPPoE 拨号获得 IP 地址，网络设备有光猫、路由器和一个子网下的做种设备。为了避免光猫拨号造成的麻烦，我们只讨论光猫为桥接模式的情况。</p>
+<h3 id="能获取到公网-ipv4-地址">能获取到公网 IPv4 地址
+</h3><p>首先，考虑路由器 PPPoE 拨号能获取到公网 IPv4 地址的情况。不难发现，如果 BT 客户端运行在路由器上，就可以轻松地被其他客户端连接，因为客户端监听在公网地址和端口上。假设 BT 客户端上报的监听端口为 <code>23456</code>，Tracker 从 TCP 报文中获得的 IPv4 地址为公网地址 <code>1.1.1.1</code>。这样，其他客户端连接到 <code>1.1.1.1:23456</code> 即可进行下载。</p>
+<p>但如果 BT 客户端运行在路由器子网下的设备上，情况则稍稍复杂。我们假设路由器获得的公网地址为 <code>1.1.1.1</code>，路由器在子网的地址为 <code>192.168.1.1</code>，客户端设备的地址为 <code>192.168.1.2</code>。此时，BT 客户端监听在 <code>192.168.1.2</code> 的 <code>23456</code> 端口上。BT 客户端上报的端口也为 <code>23456</code>，而 Tracker 获得的 IPv4 地址则为公网地址 <code>1.1.1.1</code>。其他客户端会尝试连接 <code>1.1.1.1:23456</code>，这显然会失败，因为拥有公网地址的路由器并没有在监听此端口，更不会把此端口收到的数据转发到 <code>192.168.1.2:23456</code>。</p>
+<p>这时，有几种常见的解决方案：</p>
+<ol>
+<li>
+<p>在路由器上设置 <code>192.168.1.2</code> 为 DMZ 主机。此时，发往 <code>1.1.1.1:23456</code> 的数据会被自动转发到 <code>192.168.1.2:23456</code>。</p>
+</li>
+<li>
+<p>在路由器上设置端口转发，将 <code>23456</code> 端口转发到 <code>192.168.1.2:23456</code>。</p>
+</li>
+<li>
+<p>打开路由器和 BT 客户端的 UPnP 功能。这实际上可以理解为一个自动的端口转发协议。</p>
+</li>
+</ol>
+<p>可以看出，路由器上有一层 NAT（网络地址转换），但由于路由器对我们而言是完全可控的设备，我们可以轻松配置转发穿越这一层 NAT，使其他客户端可以连接到我们的 BT 客户端。</p>
+<h3 id="不能获取到公网-ipv4-地址">不能获取到公网 IPv4 地址
+</h3><p>不能获取到公网 IPv4 地址的情况则令人绝望。这意味着只有运营商设备拥有公网地址，路由器获取到的则是一个私有地址，其本身就在通过 NAT 连接互联网。</p>
+<p>我们假设运营商设备的公网地址为 <code>1.1.1.1</code>，路由器获取到的地址为 <code>10.0.0.2</code>。我们在路由器上配置好上一节的内容，使得 <code>10.0.0.2:23456</code> 上存在一个 BT 客户端监听服务。此时，客户端向 Tracker 上报端口 <code>23456</code>，Tracker 获得的 IPv4 地址为公网地址 <code>1.1.1.1</code>。其他客户端会尝试连接 <code>1.1.1.1:23456</code>，这显然会失败。并且，我们无法通过在运营商 NAT 设备上配置 DMZ 主机或端口转发来解决，因为运营商设备对我们来说不可控。</p>
+<h2 id="nat-类型分析">NAT 类型分析
+</h2><p>为了设法穿越运营商 NAT，我们先了解一下常见的 NAT 类型。以下内容摘抄、修改自互联网：</p>
+<h3 id="完全圆锥形-natfull-cone-nat">完全圆锥形 NAT/Full Cone NAT
+</h3><p>完全圆锥型 NAT 将一个来自内部 IP 地址和端口的所有请求，始终映射到相同的公网 IP 地址和端口；同时，任意外部主机向映射的公网 IP 地址和端口发送报文，都可以实现和内网主机进行通信，就像一个向外开口的圆锥形一样，故得名。</p>
+<p>这种模式很宽松，限制小，只要内网主机的 IP 地址和端口与公网 IP 地址和端口建立映射关系，所有互联网上的主机都可以访问该 NAT 之后的内网主机。</p>
+<h3 id="地址限制式圆锥形-nataddress-restricted-cone-nat">地址限制式圆锥形 NAT/Address Restricted Cone NAT
+</h3><p>地址限制式圆锥形 NAT 同样将一个来自内部 IP 地址和端口的所有请求，始终映射到相同的公网 IP 地址和端口；与完全圆锥型 NAT 不同的是，当内网主机向某公网主机发送过报文后，只有该公网主机才能向内网主机发送报文，故得名。</p>
+<p>相比完全圆锥形 NAT，地址限制式圆锥形 NAT 增加了地址限制，也就是 IP 受限，而端口不受限。</p>
+<h3 id="端口限制式圆锥形-natport-restricted-cone-nat">端口限制式圆锥形 NAT/Port Restricted Cone NAT
+</h3><p>端口限制式圆锥形 NAT 更加严格，在上述条件下，只有该公网主机该端口才能向内网主机发送报文，故得名。</p>
+<p>相比地址限制式圆锥形 NAT，端口限制式圆锥形 NAT 又增加了端口限制，也就是说 IP、端口都受限。</p>
+<h3 id="对称式-natsymmetric-nat">对称式 NAT/Symmetric NAT
+</h3><p>对称式 NAT 将内网 IP 和端口到相同目的地址和端口的所有请求，都映射到同一个公网地址和端口；同一个内网主机，用相同的内网 IP 和端口向另外一个目的地址发送报文，则会用不同的映射（比如映射到不同的端口）。</p>
+<p>和端口限制式 NAT 不同的是，端口限制式 NAT 是所有请求映射到相同的公网 IP 地址和端口，而对称式 NAT 是为不同的请求建立不同的映射。它具有端口受限锥型的受限特性，内部地址每一次请求一个特定的外部地址，都可能会绑定到一个新的端口号。也就是请求不同的外部地址映射的端口号是可能不同的。</p>
+<p>了解了四种 NAT 类型，我们不难发现，对于 BT 这种使用模式，只有完全圆锥形 NAT/Full Cone NAT 可以尝试穿越。不同 Peer 客户端的 IP 不同，如果限制 IP 地址，Peer 就无法进行连接。</p>
+<h2 id="nat-tcp-打洞">NAT TCP 打洞
+</h2><p>我们已经知道，在完全圆锥形 NAT 下，当映射关系建立后，任意外部主机向映射的公网 IP 地址和端口发送报文，都可以实现和内网主机进行通信。因此，只要内网主机通过某个端口向外发出请求，NAT 映射关系就会建立。</p>
+<p>不过，NAT 映射关系建立后，还面临着如何长时间保持的问题。我们可以利用 <a class="link" href="https://github.com/MikeWang000000/Natter"  target="_blank" rel="noopener"
+    >Natter</a> 或 <a class="link" href="https://github.com/heiher/natmap"  target="_blank" rel="noopener"
+    >NATMap</a> 来实现对 NAT 映射关系的保持。具体原理如下：</p>
+<ol>
+<li>
+<p>由本地端口 A 向外发起 TCP 长连接，以维持 NAT 端口映射关系。</p>
+</li>
+<li>
+<p>通过 STUN 服务器，获取对应的公网 IP 和端口。</p>
+</li>
+<li>
+<p>利用端口重用特性，同时监听端口 A，对外提供服务。</p>
+</li>
+</ol>
+<h2 id="qbittorrent-场景下的应用方法">qBittorrent 场景下的应用方法
+</h2><p>我们再来考虑 TCP 打洞在 BT 中的应用。公网 IPv4 地址不用担心，Tracker 可以从 TCP 报文中直接获得。关键是需要上报给 Tracker 正确的端口。</p>
+<p>对于 qBittorrent 而言，其上报的端口必然是其本地监听端口。如果要实现灵活地修改上报端口，需要修改 qBittorrent 源码，不符合大多数 PT 站的要求。因此，需要采取比较迂回的策略。</p>
+<p>我们假设做种设备的内网 IP 为 <code>192.168.1.2</code>，路由器内网 IP 为 <code>192.168.1.1</code>。路由器通过拨号获取到私网 IP <code>10.0.0.2</code>。运营商 NAT 设备的公网 IP 为 <code>1.1.1.1</code>。其中，做种设备已被设置为 DMZ 主机，意味着监听 <code>192.168.1.2:xxxx</code> 等价于监听 <code>10.0.0.2:xxxx</code>。</p>
+<p>我们使用 NATMap，通过本地端口 <code>12345</code> 向外发起 TCP 连接，从而获取一组 NAT 映射关系，并且 <code>12345</code> 端口可以用于提供服务。假设 <code>1.1.1.1:34567</code> 被映射到 <code>10.0.0.2:12345</code>，进而通过 DMZ 主机设置来到 <code>192.168.1.2:12345</code>。理想情况下，直接让 qBittorrent 上报 <code>34567</code> 并监听 <code>12345</code> 即可。然而，由于 qBittorrent 只能上报本地监听端口，我们只能让 qBittorrent 监听 <code>192.168.1.2:34567</code>。因此，需要 iptables 规则将本地的 <code>12345</code> 端口转发至 <code>34567</code> 端口。</p>
+<p>我们以 NATMap 为例。建立 NAT 映射关系或映射关系改变时，NATMap 可以触发脚本执行自定义操作。传入参数为：</p>
+<ul>
+<li>$1: Public address (IPv4/IPv6)</li>
+<li>$2: Public port</li>
+<li>$3: IP4P</li>
+<li>$4: Bind port (private port)</li>
+<li>$5: Protocol (TCP/UDP)</li>
+</ul>
+<p>对于 BT 的应用场景，我们只需要关注参数 2 公网端口和参数 4 内网端口。我们的脚本需要将 qBittorrent 的监听端口设置为参数 2 公网端口，然后用 iptables 将本地的参数 4 内网端口转发至本地的参数 2 公网端口。具体实现如下：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="cp">#!/bin/sh
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl"><span class="c1"># Natter/NATMap</span>
+</span></span><span class="line"><span class="cl"><span class="nv">private_port</span><span class="o">=</span><span class="nv">$4</span> <span class="c1"># Natter: $3; NATMap: $4</span>
+</span></span><span class="line"><span class="cl"><span class="nv">public_port</span><span class="o">=</span><span class="nv">$2</span> <span class="c1"># Natter: $5; NATMap: $2</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># qBittorrent.</span>
+</span></span><span class="line"><span class="cl"><span class="nv">qb_web_host</span><span class="o">=</span><span class="s2">&#34;127.0.0.1&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="nv">qb_web_port</span><span class="o">=</span><span class="s2">&#34;8080&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="nv">qb_username</span><span class="o">=</span><span class="s2">&#34;admin&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="nv">qb_password</span><span class="o">=</span><span class="s2">&#34;adminadmin&#34;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nb">echo</span> <span class="s2">&#34;Update qBittorrent listen port to </span><span class="nv">$public_port</span><span class="s2">...&#34;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Update qBittorrent listen port.</span>
+</span></span><span class="line"><span class="cl"><span class="nv">qb_cookie</span><span class="o">=</span><span class="k">$(</span>curl -s -i --header <span class="s2">&#34;Referer: http://</span><span class="nv">$qb_web_host</span><span class="s2">:</span><span class="nv">$qb_web_port</span><span class="s2">&#34;</span> --data <span class="s2">&#34;username=</span><span class="nv">$qb_username</span><span class="s2">&amp;password=</span><span class="nv">$qb_password</span><span class="s2">&#34;</span> http://<span class="nv">$qb_web_host</span>:<span class="nv">$qb_web_port</span>/api/v2/auth/login <span class="p">|</span> grep -i set-cookie <span class="p">|</span> cut -c13-48<span class="k">)</span>
+</span></span><span class="line"><span class="cl">curl -X POST -b <span class="s2">&#34;</span><span class="nv">$qb_cookie</span><span class="s2">&#34;</span> -d <span class="s1">&#39;json={&#34;listen_port&#34;:&#34;&#39;</span><span class="nv">$public_port</span><span class="s1">&#39;&#34;}&#39;</span> <span class="s2">&#34;http://</span><span class="nv">$qb_web_host</span><span class="s2">:</span><span class="nv">$qb_web_port</span><span class="s2">/api/v2/app/setPreferences&#34;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nb">echo</span> <span class="s2">&#34;Update iptables...&#34;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Use iptables to forward traffic.</span>
+</span></span><span class="line"><span class="cl"><span class="nv">LINE_NUMBER</span><span class="o">=</span><span class="k">$(</span>iptables -t nat -nvL --line-number <span class="p">|</span> grep <span class="si">${</span><span class="nv">private_port</span><span class="si">}</span> <span class="p">|</span> head -n <span class="m">1</span> <span class="p">|</span> awk <span class="s1">&#39;{print $1}&#39;</span><span class="k">)</span>
+</span></span><span class="line"><span class="cl"><span class="k">if</span> <span class="o">[</span> <span class="s2">&#34;</span><span class="si">${</span><span class="nv">LINE_NUMBER</span><span class="si">}</span><span class="s2">&#34;</span> !<span class="o">=</span> <span class="s2">&#34;&#34;</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
+</span></span><span class="line"><span class="cl">    iptables -t nat -D PREROUTING <span class="nv">$LINE_NUMBER</span>
+</span></span><span class="line"><span class="cl"><span class="k">fi</span>
+</span></span><span class="line"><span class="cl">iptables -t nat -I PREROUTING -p tcp --dport <span class="nv">$private_port</span> -j DNAT --to-destination <span class="nv">$qb_web_host</span>:<span class="nv">$public_port</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nb">echo</span> <span class="s2">&#34;Done.&#34;</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>详细使用说明和脚本下载请前往我的 Github 仓库 <a class="link" href="https://github.com/Mythologyli/qBittorrent-NAT-TCP-Hole-Punching/blob/master/README.zh.md"  target="_blank" rel="noopener"
+    >qBittorrent NAT TCP Hole Punching</a>。欢迎 Star。</p>
+<p>如果运行 NATMap 的设备与运行 qBittorrent 的设备不同，则需要修改脚本中 iptables 转发的部分和 qBittorrent API 中的 <code>localhost</code>。</p>
+<h2 id="参考内容">参考内容
+</h2><ul>
+<li>
+<p><a class="link" href="https://github.com/MikeWang000000/Natter"  target="_blank" rel="noopener"
+    >Natter</a></p>
+</li>
+<li>
+<p><a class="link" href="https://github.com/heiher/natmap"  target="_blank" rel="noopener"
+    >NATMap</a></p>
+</li>
+</ul>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/nat/">NAT</a>
+        
+            <a href="/tags/%E6%89%93%E6%B4%9E/">打洞</a>
+        
+            <a href="/tags/qbittorrent/">QBittorrent</a>
+        
+            <a href="/tags/bt/">BT</a>
+        
+            <a href="/tags/pt/">PT</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://unpkg.com/katex@0.16.9/dist/katex.min.css"integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI&#43;WdtXRGWt2kTvGFasHpSy3SV"crossorigin="anonymous"
+            ><script 
+                src="https://unpkg.com/katex@0.16.9/dist/katex.min.js"integrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG&#43;vnGctmUb0ZY0l8"crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://unpkg.com/katex@0.16.9/dist/contrib/auto-render.min.js"integrity="sha384-&#43;VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4&#43;/RRE05"crossorigin="anonymous"
+                defer
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+	const mainArticleElement = document.querySelector(".main-article");
+        renderMathInElement(mainArticleElement, {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ],
+            ignoredClasses: ["gist"]
+        });})
+</script>
+
+    
+</article>
+
+    
+
+    
+
+<aside class="related-content--wrapper">
+    <h2 class="section-title">相关文章</h2>
+    <div class="related-content">
+        <div class="flex article-list--tile">
+            
+                
+<article class="has-image">
+    <a href="/p/bebird-protocol/">
+        
+        
+            <div class="article-image">
+                <img src="/p/bebird-protocol/1.4a32b6f6dd2ff2abba764e2c2ed84a49_hu_e12dc63edcf780d.png" 
+                        width="250" 
+                        height="150" 
+                        loading="lazy"
+                        alt="Featured image of post 蜂鸟 bebird 可视洁耳仪逆向分析&#43;Python 客户端"
+                        data-key="bebird-protocol" 
+                        data-hash="md5-SjK29t0v8qu6dk4sLthKSQ==">
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">蜂鸟 bebird 可视洁耳仪逆向分析&#43;Python 客户端</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="has-image">
+    <a href="/p/windows-proxy/">
+        
+        
+            <div class="article-image">
+                <img src="/p/windows-proxy/10.edf014ca8bc40a6e6d24c8d20eacde8d_hu_1555de7f20b02801.png" 
+                        width="250" 
+                        height="150" 
+                        loading="lazy"
+                        alt="Featured image of post 深入探究 Windows 系统代理设置"
+                        data-key="windows-proxy" 
+                        data-hash="md5-7fAUyovECm5tJMjSDqzejQ==">
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">深入探究 Windows 系统代理设置</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="has-image">
+    <a href="/p/qq-nt-db/">
+        
+        
+            <div class="article-image">
+                <img src="/p/qq-nt-db/4.5ca757bb0cd7f33f1546575f8406f66f_hu_d29742dabed7d919.png" 
+                        width="250" 
+                        height="150" 
+                        loading="lazy"
+                        alt="Featured image of post QQ NT Windows 数据库解密&#43;图片/文件清理"
+                        data-key="qq-nt-db" 
+                        data-hash="md5-XKdXuwzX8z8VRldfhAb2bw==">
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">QQ NT Windows 数据库解密&#43;图片/文件清理</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="has-image">
+    <a href="/p/minecraft-haproxy/">
+        
+        
+            <div class="article-image">
+                <img src="/p/minecraft-haproxy/1.bb3a7d6956730d6b1d9c71cc45e2a44d_hu_24be9eb0dee11eed.png" 
+                        width="250" 
+                        height="150" 
+                        loading="lazy"
+                        alt="Featured image of post 利用 HAProxy 让 Minecraft 服务器在内网穿透后获取客户端 IP"
+                        data-key="minecraft-haproxy" 
+                        data-hash="md5-uzp9aVZzDWsdnHHMReKkTQ==">
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">利用 HAProxy 让 Minecraft 服务器在内网穿透后获取客户端 IP</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="has-image">
+    <a href="/p/openwrt-macvlan-mwan3/">
+        
+        
+            <div class="article-image">
+                <img src="/p/openwrt-macvlan-mwan3/1.2f7411ebf622d685cb9182088e129bb7_hu_a043bbc34cc47c38.png" 
+                        width="250" 
+                        height="150" 
+                        loading="lazy"
+                        alt="Featured image of post OpenWrt 路由器 MacVLAN&#43;MWAN3 校园网多拨超详细指南"
+                        data-key="openwrt-macvlan-mwan3" 
+                        data-hash="md5-L3QR6/Yi1oXLkYIIjhKbtw==">
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">OpenWrt 路由器 MacVLAN&#43;MWAN3 校园网多拨超详细指南</h2>
+        </div>
+    </a>
+</article>
+
+            
+        </div>
+    </div>
+</aside>
+
+     
+    
+        
+    <link href='//unpkg.com/@waline/client@v3/dist/waline.css' rel='stylesheet' />
+<div id="waline" class="waline-container"></div>
+<style>
+    .waline-container {
+        background-color: var(--card-background);
+        border-radius: var(--card-border-radius);
+        box-shadow: var(--shadow-l1);
+        padding: var(--card-padding);
+    }
+    .waline-container .vcount {
+        color: var(--card-text-color-main);
+    }
+    :root{
+        --waline-font-size: 16px;
+    }
+</style><script type="module">
+    import { init } from 'https://unpkg.com/@waline/client@v3/dist/waline.js';
+
+    init({"commentsorting":"lastest","dark":"html[data-scheme=\"dark\"]","el":"#waline","emoji":["https://myth.cx/walinejs/emojis/tieba"],"lang":"zh","locale":{"admin":"博主","placeholder":"无需登录也可以评论哦！建议留下邮箱，当你收到回复时会自动发送提醒！"},"reaction":true,"requiredMeta":["nick","mail"],"serverURL":"https://waline.blog.myth.cx"});
+  </script>
+
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2019 - 
+        
+        2025 Myth&#39;s Blog | Myth 的小站
+    </section>
+    
+    <section class="powerby">
+        使用 <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> 构建 <br />
+        主题 <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.30.0">Stack</a></b> 由 <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a> 设计
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://unpkg.com/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://unpkg.com/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://unpkg.com/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://unpkg.com/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://unpkg.com/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.22bc113026237a32ff87f2632dfbaea5ea9ba2ec1f74396ec449e0e54e832a7b.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

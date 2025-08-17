@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+    <channel>
+        <title>Time Zone on Myth&#39;s Blog</title>
+        <link>http://localhost:1313/en/tags/time-zone/</link>
+        <description>Recent content in Time Zone on Myth&#39;s Blog</description>
+        <generator>Hugo -- gohugo.io</generator>
+        <language>en</language>
+        <lastBuildDate>Tue, 17 May 2022 00:00:00 +0000</lastBuildDate><atom:link href="http://localhost:1313/en/tags/time-zone/index.xml" rel="self" type="application/rss+xml" /><item>
+        <title>Solve articles/pages not rendered problem caused by Hugo&#39;s default time zone</title>
+        <link>http://localhost:1313/en/p/hugo-time-zone/</link>
+        <pubDate>Tue, 17 May 2022 00:00:00 +0000</pubDate>
+        
+        <guid>http://localhost:1313/en/p/hugo-time-zone/</guid>
+        <description>&lt;img src="http://localhost:1313/p/hugo-time-zone/1.png" alt="Featured image of post Solve articles/pages not rendered problem caused by Hugo&#39;s default time zone" /&gt;&lt;h2 id=&#34;problem&#34;&gt;Problem
+&lt;/h2&gt;&lt;p&gt;At 1:00 a.m. May 17th. I create a page like this:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-yaml&#34; data-lang=&#34;yaml&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;nt&#34;&gt;title&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;l&#34;&gt;Solve articles/pages not rendered problem in Hugo&amp;#39;s default time zone&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;w&#34;&gt;&lt;/span&gt;&lt;span class=&#34;nt&#34;&gt;description&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;l&#34;&gt;Oh no! Where is my new page!&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;w&#34;&gt;&lt;/span&gt;&lt;span class=&#34;nt&#34;&gt;date&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;ld&#34;&gt;2022-05-17&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;However, nothing happened.&lt;/p&gt;
+&lt;p&gt;Then I looked at the console to see the output of &lt;code&gt;hugo -D server&lt;/code&gt;:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;Change detected, rebuilding site.
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;2022-05-17 01:09:56.287 +0800
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;Source changed &lt;span class=&#34;s2&#34;&gt;&amp;#34;.../index.md&amp;#34;&lt;/span&gt;: WRITE
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;Total in &lt;span class=&#34;m&#34;&gt;12&lt;/span&gt; ms
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;It found my changes! So why the new page not rendered?&lt;/p&gt;
+&lt;h2 id=&#34;solution&#34;&gt;Solution
+&lt;/h2&gt;&lt;p&gt;It turns out that Hugo will not render future pages by default, nor will it output any prompts indicating that there are pages that have not been rendered because the time has not come. And Hugo considers my page according to UTC time, thinks my page is a future page, so there is no output.&lt;/p&gt;
+&lt;p&gt;To solve this, you can:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Add the time zone info in date field.&lt;/li&gt;
+&lt;li&gt;Configure Hugo to output future pages.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;I chose the second way. In config.yaml I set:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-yaml&#34; data-lang=&#34;yaml&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;nt&#34;&gt;buildFuture&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;kc&#34;&gt;true&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;So Hugo will render future pages.&lt;/p&gt;
+&lt;h2 id=&#34;references&#34;&gt;References
+&lt;/h2&gt;&lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://jdhao.github.io/2020/01/11/hugo_post_missing/&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;Hugo Post Missing&lt;/a&gt; Author: &lt;a class=&#34;link&#34; href=&#34;https://jdhao.github.io/&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;jdhao&lt;/a&gt;&lt;/p&gt;
+</description>
+        </item>
+        
+    </channel>
+</rss>

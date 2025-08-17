@@ -1,0 +1,1060 @@
+<!DOCTYPE html>
+<html lang="zh-cn" dir="ltr">
+    <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content="中文 VPN 名称/校网客户端 + 代理 = Boom？锟斤拷！">
+<title>深入探究 Windows 系统代理设置</title>
+
+<link rel='canonical' href='http://localhost:1313/p/windows-proxy/'>
+
+<link rel="stylesheet" href="/scss/style.min.c8f0bc3441053264ab8ecd461174f9dc23f22c447f8437a00ae40f8dcd56b34f.css"><meta property='og:title' content="深入探究 Windows 系统代理设置">
+<meta property='og:description' content="中文 VPN 名称/校网客户端 + 代理 = Boom？锟斤拷！">
+<meta property='og:url' content='http://localhost:1313/p/windows-proxy/'>
+<meta property='og:site_name' content='Myth&#39;s Blog | Myth 的小站'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='Windows' /><meta property='article:tag' content='代理' /><meta property='article:tag' content='系统代理' /><meta property='article:published_time' content='2023-10-17T00:00:00&#43;00:00'/><meta property='article:modified_time' content='2023-10-17T00:00:00&#43;00:00'/><meta property='og:image' content='http://localhost:1313/p/windows-proxy/10.png' />
+<meta name="twitter:title" content="深入探究 Windows 系统代理设置">
+<meta name="twitter:description" content="中文 VPN 名称/校网客户端 + 代理 = Boom？锟斤拷！"><meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content='http://localhost:1313/p/windows-proxy/10.png' /><link rel="icon" type="image/svg+xml" href="/favicon.svg">
+
+<link href="https://vjs.zencdn.net/7.20.3/video-js.css" rel="stylesheet" />
+
+<style>
+    @font-face {
+        font-family: 'MiSans';
+        src: url('/fonts/MiSans-Medium.woff');
+    }
+
+    :root {
+        --article-font-family: 'Lato', 'MiSans', var(--base-font-family);
+    }
+</style>
+
+
+<script defer src='https://static.cloudflareinsights.com/beacon.min.js'
+    data-cf-beacon='{"token": "d038f5a69162409d89c374de9fe3386c"}'>
+</script>
+
+
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-9S0MPLBY94"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-9S0MPLBY94');
+</script>
+
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="切换菜单">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar_hu_a008ef868a8cf25a.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+                    <span class="emoji">✔️</span>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">Myth&#39;s Blog | Myth 的小站</a></h1>
+            <h2 class="site-description">荒唐无聊正经有趣的大学生 | 业余 Minecraft 腐竹 | PTer</h2>
+        </div>
+    </header><ol class="menu-social">
+            
+                <li>
+                    <a 
+                        href='https://github.com/Mythologyli'
+                        target="_blank"
+                        title="1-GitHub"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg width="32px" height="32px" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+  <path d="M16 0.396c-8.839 0-16 7.167-16 16 0 7.073 4.584 13.068 10.937 15.183 0.803 0.151 1.093-0.344 1.093-0.772 0-0.38-0.009-1.385-0.015-2.719-4.453 0.964-5.391-2.151-5.391-2.151-0.729-1.844-1.781-2.339-1.781-2.339-1.448-0.989 0.115-0.968 0.115-0.968 1.604 0.109 2.448 1.645 2.448 1.645 1.427 2.448 3.744 1.74 4.661 1.328 0.14-1.031 0.557-1.74 1.011-2.135-3.552-0.401-7.287-1.776-7.287-7.907 0-1.751 0.62-3.177 1.645-4.297-0.177-0.401-0.719-2.031 0.141-4.235 0 0 1.339-0.427 4.4 1.641 1.281-0.355 2.641-0.532 4-0.541 1.36 0.009 2.719 0.187 4 0.541 3.043-2.068 4.381-1.641 4.381-1.641 0.859 2.204 0.317 3.833 0.161 4.235 1.015 1.12 1.635 2.547 1.635 4.297 0 6.145-3.74 7.5-7.296 7.891 0.556 0.479 1.077 1.464 1.077 2.959 0 2.14-0.020 3.864-0.020 4.385 0 0.416 0.28 0.916 1.104 0.755 6.4-2.093 10.979-8.093 10.979-15.156 0-8.833-7.161-16-16-16z"/>
+</svg>
+
+                        
+                    </a>
+                </li>
+            
+                <li>
+                    <a 
+                        href='https://live.bilibili.com/21461713'
+                        target="_blank"
+                        title="2-Bilibili"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg width="24px" height="24px" viewBox="0 0 24 24" role="img" xmlns="http://www.w3.org/2000/svg"><title>Bilibili icon</title><path d="M17.813 4.653h.854c1.51.054 2.769.578 3.773 1.574 1.004.995 1.524 2.249 1.56 3.76v7.36c-.036 1.51-.556 2.769-1.56 3.773s-2.262 1.524-3.773 1.56H5.333c-1.51-.036-2.769-.556-3.773-1.56S.036 18.858 0 17.347v-7.36c.036-1.511.556-2.765 1.56-3.76 1.004-.996 2.262-1.52 3.773-1.574h.774l-1.174-1.12a1.234 1.234 0 0 1-.373-.906c0-.356.124-.658.373-.907l.027-.027c.267-.249.573-.373.92-.373.347 0 .653.124.92.373L9.653 4.44c.071.071.134.142.187.213h4.267a.836.836 0 0 1 .16-.213l2.853-2.747c.267-.249.573-.373.92-.373.347 0 .662.151.929.4.267.249.391.551.391.907 0 .355-.124.657-.373.906zM5.333 7.24c-.746.018-1.373.276-1.88.773-.506.498-.769 1.13-.786 1.894v7.52c.017.764.28 1.395.786 1.893.507.498 1.134.756 1.88.773h13.334c.746-.017 1.373-.275 1.88-.773.506-.498.769-1.129.786-1.893v-7.52c-.017-.765-.28-1.396-.786-1.894-.507-.497-1.134-.755-1.88-.773zM8 11.107c.373 0 .684.124.933.373.25.249.383.569.4.96v1.173c-.017.391-.15.711-.4.96-.249.25-.56.374-.933.374s-.684-.125-.933-.374c-.25-.249-.383-.569-.4-.96V12.44c0-.373.129-.689.386-.947.258-.257.574-.386.947-.386zm8 0c.373 0 .684.124.933.373.25.249.383.569.4.96v1.173c-.017.391-.15.711-.4.96-.249.25-.56.374-.933.374s-.684-.125-.933-.374c-.25-.249-.383-.569-.4-.96V12.44c.017-.391.15-.711.4-.96.249-.249.56-.373.933-.373Z"/></svg>
+                        
+                    </a>
+                </li>
+            
+                <li>
+                    <a 
+                        href='https://twitter.com/Mythologyli'
+                        target="_blank"
+                        title="3-Twitter"
+                        rel="me"
+                    >
+                        
+                        
+                            <?xml version="1.0" encoding="iso-8859-1"?>
+<!-- Generator: Adobe Illustrator 19.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 viewBox="0 0 310 310" style="enable-background:new 0 0 310 310;" xml:space="preserve">
+<g id="XMLID_826_">
+	<path id="XMLID_827_" d="M302.973,57.388c-4.87,2.16-9.877,3.983-14.993,5.463c6.057-6.85,10.675-14.91,13.494-23.73
+		c0.632-1.977-0.023-4.141-1.648-5.434c-1.623-1.294-3.878-1.449-5.665-0.39c-10.865,6.444-22.587,11.075-34.878,13.783
+		c-12.381-12.098-29.197-18.983-46.581-18.983c-36.695,0-66.549,29.853-66.549,66.547c0,2.89,0.183,5.764,0.545,8.598
+		C101.163,99.244,58.83,76.863,29.76,41.204c-1.036-1.271-2.632-1.956-4.266-1.825c-1.635,0.128-3.104,1.05-3.93,2.467
+		c-5.896,10.117-9.013,21.688-9.013,33.461c0,16.035,5.725,31.249,15.838,43.137c-3.075-1.065-6.059-2.396-8.907-3.977
+		c-1.529-0.851-3.395-0.838-4.914,0.033c-1.52,0.871-2.473,2.473-2.513,4.224c-0.007,0.295-0.007,0.59-0.007,0.889
+		c0,23.935,12.882,45.484,32.577,57.229c-1.692-0.169-3.383-0.414-5.063-0.735c-1.732-0.331-3.513,0.276-4.681,1.597
+		c-1.17,1.32-1.557,3.16-1.018,4.84c7.29,22.76,26.059,39.501,48.749,44.605c-18.819,11.787-40.34,17.961-62.932,17.961
+		c-4.714,0-9.455-0.277-14.095-0.826c-2.305-0.274-4.509,1.087-5.294,3.279c-0.785,2.193,0.047,4.638,2.008,5.895
+		c29.023,18.609,62.582,28.445,97.047,28.445c67.754,0,110.139-31.95,133.764-58.753c29.46-33.421,46.356-77.658,46.356-121.367
+		c0-1.826-0.028-3.67-0.084-5.508c11.623-8.757,21.63-19.355,29.773-31.536c1.237-1.85,1.103-4.295-0.33-5.998
+		C307.394,57.037,305.009,56.486,302.973,57.388z"/>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+</svg>
+
+                        
+                    </a>
+                </li>
+            
+                <li>
+                    <a 
+                        href='https://music.163.com/#/user/home?id=477487301'
+                        target="_blank"
+                        title="5-Netease Cloud Music"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg width="24px" height="24px" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+    <g>
+        <path fill="none" d="M0 0h24v24H0z"/>
+        <path d="M12 22C6.477 22 2 17.523 2 12S6.477 2 12 2s10 4.477 10 10-4.477 10-10 10zm-1.086-10.432c.24-.84 1.075-1.541 1.99-1.648.187.694.388 1.373.545 2.063.053.23.037.495-.018.727-.213.892-1.248 1.242-1.978.685-.53-.405-.742-1.12-.539-1.827zm3.817-.197c-.125-.465-.256-.927-.393-1.42.5.13.908.36 1.255.698 1.257 1.221 1.385 3.3.294 4.731-1.135 1.49-3.155 2.134-5.028 1.605-2.302-.65-3.808-2.952-3.441-5.316.274-1.768 1.27-3.004 2.9-3.733.407-.182.58-.56.42-.93-.157-.364-.54-.504-.944-.343-2.721 1.089-4.32 4.134-3.67 6.987.713 3.118 3.495 5.163 6.675 4.859 1.732-.165 3.164-.948 4.216-2.347 1.506-2.002 1.297-4.783-.463-6.499-.666-.65-1.471-1.018-2.39-1.153-.083-.013-.217-.052-.232-.106-.087-.313-.18-.632-.206-.954-.029-.357.29-.64.65-.645.253-.003.434.13.603.3.303.3.704.322.988.062.29-.264.296-.678.018-1.008-.566-.672-1.586-.891-2.43-.523-.847.37-1.321 1.187-1.2 2.093.038.28.11.557.167.842l-.26.072c-.856.24-1.561.704-2.098 1.414-.921 1.22-.936 2.828-.041 3.947 1.274 1.594 3.747 1.284 4.523-.568.284-.676.275-1.368.087-2.065z"/>
+    </g>
+</svg>
+
+                        
+                    </a>
+                </li>
+            
+        </ol><ol class="menu" id="main-menu">
+        
+        
+        
+        <li >
+            <a href='/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="5 12 3 12 12 3 21 12 19 12" />
+  <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+  <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+</svg>
+
+
+
+                
+                <span>主页</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/archives/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>文章</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>搜索</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/links/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-link" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M10 14a3.5 3.5 0 0 0 5 0l4 -4a3.5 3.5 0 0 0 -5 -5l-.5 .5" />
+  <path d="M14 10a3.5 3.5 0 0 0 -5 0l-4 4a3.5 3.5 0 0 0 5 5l.5 -.5" />
+</svg>
+
+
+
+                
+                <span>链接</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/download/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>下载站</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/about/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="7" r="4" />
+  <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+</svg>
+
+
+
+                
+                <span>关于</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/board/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>留言板</span>
+            </a>
+        </li>
+        
+        <li class="menu-bottom-section">
+            <ol class="menu">
+                    
+                        <li id="i18n-switch">  
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-language" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M4 5h7" />
+  <path d="M9 3v2c0 4.418 -2.239 8 -5 8" />
+  <path d="M5 9c-.003 2.144 2.952 3.908 6.7 4" />
+  <path d="M12 20l4 -9l4 9" />
+  <path d="M19.1 18h-6.2" />
+</svg>
+
+
+
+                            <select name="language" title="language" onchange="window.location.href = this.selectedOptions[0].value">
+                                
+                                    <option value="http://localhost:1313/" selected>中文</option>
+                                
+                                    <option value="http://localhost:1313/en/" >English</option>
+                                
+                            </select>
+                        </li>
+                    
+                
+
+                
+                    <li id="dark-mode-toggle">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                        <span>暗色模式</span>
+                    </li>
+                
+            </ol>
+        </li>
+    </ol>
+</aside>
+
+    <aside class="sidebar right-sidebar sticky">
+        
+            
+                
+    <section class="widget archives">
+        <div class="widget-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+        </div>
+        <h2 class="widget-title section-title">目录</h2>
+        
+        <div class="widget--toc">
+            <nav id="TableOfContents">
+  <ol>
+    <li><a href="#最基本的情况无拨号连接">最基本的情况——无拨号连接</a></li>
+    <li><a href="#就这么简单吗还有设置">就这么简单吗？——还有设置！</a></li>
+    <li><a href="#拨号连接又来一份设置">拨号连接——又来一份设置！</a></li>
+    <li><a href="#中文名称锟斤拷的噩梦">中文名称——锟斤拷的噩梦</a></li>
+    <li><a href="#默认-vpn-名称含中文巨硬的坑人大法">默认 VPN 名称含中文——巨硬的坑人大法</a></li>
+    <li><a href="#总结复杂而混乱的代理设置体系">总结——复杂而混乱的代理设置体系</a></li>
+  </ol>
+</nav>
+        </div>
+    </section>
+
+            
+        
+    </aside>
+
+
+            <main class="main full-width">
+    <article class="has-image main-article">
+    <header class="article-header">
+        <div class="article-image">
+            <a href="/p/windows-proxy/">
+                <img src="/p/windows-proxy/10_hu_cda3614e9723a9d.png"
+                        srcset="/p/windows-proxy/10_hu_cda3614e9723a9d.png 800w, /p/windows-proxy/10_hu_3b6c9b485a6c59ce.png 1600w"
+                        width="800" 
+                        height="477" 
+                        loading="lazy"
+                        alt="Featured image of post 深入探究 Windows 系统代理设置" />
+                
+            </a>
+        </div>
+    
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/tech/" >
+                技术
+            </a>
+        
+    </header>
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/p/windows-proxy/">深入探究 Windows 系统代理设置</a>
+        </h2>
+    
+        
+        <h3 class="article-subtitle">
+            中文 VPN 名称/校网客户端 &#43; 代理 = Boom？锟斤拷！
+        </h3>
+        
+    </div>
+
+    
+    
+    
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Oct 17, 2023</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    阅读时长: 6 分钟
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+    
+    <p>想必大家都经常用到 Windows 系统代理设置——即使没有亲自修改，多半也由软件代劳了。毕竟科学上网客户端干的事情通常都是：开启一个 HTTP 代理服务端，然后配置系统代理去设置去使用它。</p>
+<p>但是，某些情况下，Windows 系统代理却会出现一些玄学问题。比如，使用 ZJU 官方的有线校网客户端，或是自己创建名称带有中文的 L2TP VPN 时，系统代理设置好像无效了——浏览器说什么也不肯通过代理访问互联网。只好借助 SwitchyOmega 这样的插件，但总觉得不爽。又或者，在使用 L2TP VPN 环境下使用 Clash Verge，也会出现系统代理无效的问题。</p>
+<p>这篇文章通过试验，探究了 Windows 系统代理的一些细节，试图为以上问题找到答案。</p>
+<h2 id="最基本的情况无拨号连接">最基本的情况——无拨号连接
+</h2><p>首先，我们来看看最基本的情况：没有任何拨号连接，即通过路由器直接上网。</p>
+<p>我们使用 Clash for Windows，在 7890 端口上开启 HTTP 代理服务器。之后，不用 Clash for Windows 内置的功能，而是在设置 - 网络和 Internet - 代理中进行手动配置。</p>
+<div style="text-align:center"><img src="1.png" width=400/></div>
+<p>开启“使用代理服务器”后，我们可以发现 Clash log 中已经有浏览器的流量，这说明浏览器正在使用代理上网。</p>
+<p>为了知其所以然，让我们看看此时在注册表里发生了什么：</p>
+<p><img src="/p/windows-proxy/2.png"
+	width="2273"
+	height="965"
+	srcset="/p/windows-proxy/2_hu_719bd3d73d9fdd8d.png 480w, /p/windows-proxy/2_hu_fe11783615266ab4.png 1024w"
+	loading="lazy"
+	
+	
+		class="gallery-image" 
+		data-flex-grow="235"
+		data-flex-basis="565px"
+	
+></p>
+<p>可以发现，<code>HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Internet Settings</code> 中的 <code>ProxyEnable</code> 被设置为 <code>1</code>，<code>ProxyServer</code> 被设置为 <code>127.0.0.1:7890</code>，<code>ProxyOverride</code> 被设置为 <code>localhost; &lt;local&gt;</code>。这三个值分别对应“使用代理服务器”、“代理 IP 地址 + 端口”、“不使用代理服务器的地址”这三个选项。</p>
+<h2 id="就这么简单吗还有设置">就这么简单吗？——还有设置！
+</h2><p>要是就这么简单就好了。实际上，仔细观察注册表，就会发现还有设置！</p>
+<p>进入 <code>HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Internet Settings\Connections</code>，查看 <code>DefaultConnectionSettings</code> 键的值，这是一个二进制：</p>
+<div style="text-align:center"><img src="3.png" width=400/></div>
+<p>诶！怎么又来一份代理设置！而且是一模一样的！</p>
+<p>我们回到设置 - 网络和 Internet - 代理中，将端口从 7890 改成 7891，然后再看看注册表：<code>ProxyServer</code> 变了，<code>DefaultConnectionSettings</code> 也变了。此时浏览器也无法正常上网。看来在设置中的修改会同时影响这两个。</p>
+<p>那么，浏览器上网的代理到底由哪个决定呢？我们直接在注册表修改 <code>DefaultConnectionSettings</code>，将端口改回 7890，此时浏览器又可以正常上网了。看来 <code>DefaultConnectionSettings</code> 决定浏览器上网的代理。</p>
+<p>实际上，<code>DefaultConnectionSettings</code> 对应着 Internet 属性 - 连接 - 局域网设置，这是从古老的 IE 那里流传下来的设置界面——即使现在 IE 已经没了但这个界面还在控制面板里。</p>
+<p><img src="/p/windows-proxy/4.png"
+	width="1902"
+	height="1318"
+	srcset="/p/windows-proxy/4_hu_5b09352d026f2d0f.png 480w, /p/windows-proxy/4_hu_4cc74b694278212e.png 1024w"
+	loading="lazy"
+	
+	
+		class="gallery-image" 
+		data-flex-grow="144"
+		data-flex-basis="346px"
+	
+></p>
+<p>另外，还有一个有趣的现象——这两个键会互相影响。例如，初始情况下 <code>ProxyServer</code> 和 <code>DefaultConnectionSettings</code> 中的端口均为 7890，此时可以正常上网。此时修改 <code>ProxyServer</code> 中的端口为 7899，就会发现不能上网了——奇怪，不是应该由 <code>DefaultConnectionSettings</code> 决定吗？但此时再去检查 <code>DefaultConnectionSettings</code>，发现也跟着变了。再把 <code>DefaultConnectionSettings</code> 改回 7890，立马又可以上网了，不过 <code>ProxyServer</code> 没有变回 7890。但打开设置后，<code>ProxyServer</code> 也变回 7890 了。</p>
+<h2 id="拨号连接又来一份设置">拨号连接——又来一份设置！
+</h2><p>进过一番讨论，无拨号的情况研究的差不多了——别急，还有拨号连接呢！</p>
+<p>我们先复原所有代理设置，创建一个名为 ZJUVPN 的 L2TP VPN 并连接，然后重复一开始的过程：在设置 - 网络和 Internet - 代理中进行手动配置。此时的结果就和我们预想的大不相同了：没有用！还是在直连。查看注册表，更觉得古怪：</p>
+<p><img src="/p/windows-proxy/5.png"
+	width="2278"
+	height="862"
+	srcset="/p/windows-proxy/5_hu_93cbc1d5ae723883.png 480w, /p/windows-proxy/5_hu_9d873d651f216d6a.png 1024w"
+	loading="lazy"
+	
+	
+		class="gallery-image" 
+		data-flex-grow="264"
+		data-flex-basis="634px"
+	
+></p>
+<p>首先，<code>ProxyServer</code> 和 <code>ProxyOverride</code> 消失了，只有 <code>ProxyEnable</code> 还在，但是值是 0——这和说好的不一样啊，设置里代理不是启用状态吗？再看 <code>DefaultConnectionSettings</code>，这个好像比较正常（此时在设置里更改还是可以改变 DefaultConnectionSettings 的值），但是不生效。不过，仔细看看 <code>HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Internet Settings\Connections</code>，原因显而易见了：</p>
+<p><img src="/p/windows-proxy/6.png"
+	width="2655"
+	height="1147"
+	srcset="/p/windows-proxy/6_hu_64b36420868b51b3.png 480w, /p/windows-proxy/6_hu_67909213b498d80b.png 1024w"
+	loading="lazy"
+	
+	
+		class="gallery-image" 
+		data-flex-grow="231"
+		data-flex-basis="555px"
+	
+></p>
+<p>Connections 中多出了一个名为 <code>ZJUVPN</code> 的键，并且看起来是没有设置的。打开 Internet 属性 - 连接，也可以看到多了一个 ZJUVPN 配置项。</p>
+<p><img src="/p/windows-proxy/7.png"
+	width="1841"
+	height="1295"
+	srcset="/p/windows-proxy/7_hu_7b7153b43b8afc9a.png 480w, /p/windows-proxy/7_hu_79e524efe1d2e0bf.png 1024w"
+	loading="lazy"
+	
+	
+		class="gallery-image" 
+		data-flex-grow="142"
+		data-flex-basis="341px"
+	
+></p>
+<p>看来，Windows 的 VPN 拨号连接的设置是独立的，而设置 - 网络和 Internet - 代理中的设置只对无拨号连接生效。要更改 VPN 拨号连接的代理设置，需要在 Internet 属性 - 连接中进行更改。当然，Windows 也做了相应的现代界面（经典的设置+控制面板）：</p>
+<p><img src="/p/windows-proxy/8.png"
+	width="2152"
+	height="1556"
+	srcset="/p/windows-proxy/8_hu_10ad17e555b818d6.png 480w, /p/windows-proxy/8_hu_6f841da068574d1c.png 1024w"
+	loading="lazy"
+	
+	
+		class="gallery-image" 
+		data-flex-grow="138"
+		data-flex-basis="331px"
+	
+></p>
+<p>单独修改代理设置后，浏览器可以正常使用代理。可以看到，这一设置较为隐蔽。一些科学上网客户端也忽略了这一点，导致无法在使用 VPN 时正确设置系统代理。详见<a class="link" href="https://github.com/zzzgydi/clash-verge/issues/833"  target="_blank" rel="noopener"
+    >此链接</a>。</p>
+<h2 id="中文名称锟斤拷的噩梦">中文名称——锟斤拷的噩梦
+</h2><p>众所周知，使用 ZJU 有线校网客户端会导致梯子无法正常工作。我们来看看这究竟是为什么。（友情提示：有线校网客户端容易炸注册表，强烈建议在虚拟机内试验）</p>
+<p>成功连接客户端后，在终端输入 <code>ipconfig</code> 命令：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">C:\Users\Myth&gt;ipconfig
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Windows IP 配置
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">以太网适配器 Ethernet0:
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">   连接特定的 DNS 后缀 . . . . . . . : localdomain
+</span></span><span class="line"><span class="cl">   本地链接 IPv6 地址. . . . . . . . : fe80::8f6a:5577:f304:1fea%6
+</span></span><span class="line"><span class="cl">   IPv4 地址 . . . . . . . . . . . . : 192.168.163.132
+</span></span><span class="line"><span class="cl">   子网掩码  . . . . . . . . . . . . : 255.255.255.0
+</span></span><span class="line"><span class="cl">   默认网关. . . . . . . . . . . . . : 192.168.163.2
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">PPP 适配器 SRun3K专用宽带拨号连接:
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">   连接特定的 DNS 后缀 . . . . . . . :
+</span></span><span class="line"><span class="cl">   IPv4 地址 . . . . . . . . . . . . : 222.205.2.241
+</span></span><span class="line"><span class="cl">   子网掩码  . . . . . . . . . . . . : 255.255.255.255
+</span></span><span class="line"><span class="cl">   默认网关. . . . . . . . . . . . . : 0.0.0.0
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">以太网适配器 蓝牙网络连接:
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">   媒体状态  . . . . . . . . . . . . : 媒体已断开连接
+</span></span><span class="line"><span class="cl">   连接特定的 DNS 后缀 . . . . . . . :
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>有线客户端创建了一个名为“SRun3K专用宽带拨号连接”的 PPP 适配器，通过这个适配器访问互联网。此时手动配置设置 - 网络和 Internet - 代理。根据上一节的经验，我们知道 Internet 属性 - 连接中会出现一个新的配置&hellip;嗯？</p>
+<div style="text-align:center"><img src="9.png" width=400/></div>
+<p>怎么空空如也？赶快看看注册表：</p>
+<p><img src="/p/windows-proxy/10.png"
+	width="1884"
+	height="1124"
+	srcset="/p/windows-proxy/10_hu_e16354ca96d656d4.png 480w, /p/windows-proxy/10_hu_e0ee2ee3196f71cc.png 1024w"
+	loading="lazy"
+	
+	
+		class="gallery-image" 
+		data-flex-grow="167"
+		data-flex-basis="402px"
+	
+></p>
+<p>好家伙，乱码了！看来又是 GBK 和 Unicode 混用搞得鬼！有没有可能手动修改这个乱码键的值来设置代理呢？试了试发现不行。不过，手动新建一个名为“SRun3K专用宽带拨号连接”的键，然后把 <code>DefaultConnectionSettings</code> 的值偷过来，发现可以正常使用代理了。</p>
+<p><img src="/p/windows-proxy/11.png"
+	width="2000"
+	height="1036"
+	srcset="/p/windows-proxy/11_hu_c238829863db131b.png 480w, /p/windows-proxy/11_hu_5e036b09520b8d8f.png 1024w"
+	loading="lazy"
+	
+	
+		class="gallery-image" 
+		data-flex-grow="193"
+		data-flex-basis="463px"
+	
+></p>
+<p>自建中文名称的 L2TP VPN 也同理，同样会因为中文乱码造成无法设置系统代理的问题。</p>
+<h2 id="默认-vpn-名称含中文巨硬的坑人大法">默认 VPN 名称含中文——巨硬的坑人大法
+</h2><p>写到这里有读者可能会好奇——为什么那么多人创建名称含中文的 L2TP VPN 呢？呵呵，这就要问问微软了。</p>
+<p><img src="/p/windows-proxy/12.png"
+	width="1228"
+	height="920"
+	srcset="/p/windows-proxy/12_hu_c5f6ab5321aebc3a.png 480w, /p/windows-proxy/12_hu_b5200e7a853e7cbb.png 1024w"
+	loading="lazy"
+	
+	
+		class="gallery-image" 
+		data-flex-grow="133"
+		data-flex-basis="320px"
+	
+></p>
+<p>默认名称？？！！</p>
+<h2 id="总结复杂而混乱的代理设置体系">总结——复杂而混乱的代理设置体系
+</h2><p>Windows 复杂而混乱的代理设置体系给我们带来了许多困难。用户和开发者很容易忽视拨号连接代理设置的独立性，造成种种问题，更何况还有中文乱码这个大坑。</p>
+<p>在这方面的使用、开发中，必须要注意：</p>
+<ul>
+<li>
+<p>程序在设置系统代理时，不可遗漏 <code>HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Internet Settings\Connections</code> 中的键值。当然二进制的形式给开发者带来了更多困难。</p>
+</li>
+<li>
+<p>使用 VPN 时，要注意不能创建名称含有中文的网络适配器。</p>
+</li>
+</ul>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/windows/">Windows</a>
+        
+            <a href="/tags/%E4%BB%A3%E7%90%86/">代理</a>
+        
+            <a href="/tags/%E7%B3%BB%E7%BB%9F%E4%BB%A3%E7%90%86/">系统代理</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://unpkg.com/katex@0.16.9/dist/katex.min.css"integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI&#43;WdtXRGWt2kTvGFasHpSy3SV"crossorigin="anonymous"
+            ><script 
+                src="https://unpkg.com/katex@0.16.9/dist/katex.min.js"integrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG&#43;vnGctmUb0ZY0l8"crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://unpkg.com/katex@0.16.9/dist/contrib/auto-render.min.js"integrity="sha384-&#43;VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4&#43;/RRE05"crossorigin="anonymous"
+                defer
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+	const mainArticleElement = document.querySelector(".main-article");
+        renderMathInElement(mainArticleElement, {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ],
+            ignoredClasses: ["gist"]
+        });})
+</script>
+
+    
+</article>
+
+    
+
+    
+
+<aside class="related-content--wrapper">
+    <h2 class="section-title">相关文章</h2>
+    <div class="related-content">
+        <div class="flex article-list--tile">
+            
+                
+<article class="has-image">
+    <a href="/p/disable-tablet-mode-in-windows-11/">
+        
+        
+            <div class="article-image">
+                <img src="/p/disable-tablet-mode-in-windows-11/1.57a96679787c1153c40fb54e864f650b_hu_715ecdc775310251.png" 
+                        width="250" 
+                        height="150" 
+                        loading="lazy"
+                        alt="Featured image of post 禁用 Windows 11 平板模式"
+                        data-key="disable-tablet-mode-in-windows-11" 
+                        data-hash="md5-V6lmeXh8EVPED7VOhk9lCw==">
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">禁用 Windows 11 平板模式</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
+    <a href="/p/barrier/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">基于软件实现一套键鼠操作多台电脑 —— Barrier 使用介绍</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
+    <a href="/p/aliyun-ddns/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">在 Windows 上实现阿里云 DNS 动态解析</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="has-image">
+    <a href="/p/bebird-protocol/">
+        
+        
+            <div class="article-image">
+                <img src="/p/bebird-protocol/1.4a32b6f6dd2ff2abba764e2c2ed84a49_hu_e12dc63edcf780d.png" 
+                        width="250" 
+                        height="150" 
+                        loading="lazy"
+                        alt="Featured image of post 蜂鸟 bebird 可视洁耳仪逆向分析&#43;Python 客户端"
+                        data-key="bebird-protocol" 
+                        data-hash="md5-SjK29t0v8qu6dk4sLthKSQ==">
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">蜂鸟 bebird 可视洁耳仪逆向分析&#43;Python 客户端</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="has-image">
+    <a href="/p/qq-nt-db/">
+        
+        
+            <div class="article-image">
+                <img src="/p/qq-nt-db/4.5ca757bb0cd7f33f1546575f8406f66f_hu_d29742dabed7d919.png" 
+                        width="250" 
+                        height="150" 
+                        loading="lazy"
+                        alt="Featured image of post QQ NT Windows 数据库解密&#43;图片/文件清理"
+                        data-key="qq-nt-db" 
+                        data-hash="md5-XKdXuwzX8z8VRldfhAb2bw==">
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">QQ NT Windows 数据库解密&#43;图片/文件清理</h2>
+        </div>
+    </a>
+</article>
+
+            
+        </div>
+    </div>
+</aside>
+
+     
+    
+        
+    <link href='//unpkg.com/@waline/client@v3/dist/waline.css' rel='stylesheet' />
+<div id="waline" class="waline-container"></div>
+<style>
+    .waline-container {
+        background-color: var(--card-background);
+        border-radius: var(--card-border-radius);
+        box-shadow: var(--shadow-l1);
+        padding: var(--card-padding);
+    }
+    .waline-container .vcount {
+        color: var(--card-text-color-main);
+    }
+    :root{
+        --waline-font-size: 16px;
+    }
+</style><script type="module">
+    import { init } from 'https://unpkg.com/@waline/client@v3/dist/waline.js';
+
+    init({"commentsorting":"lastest","dark":"html[data-scheme=\"dark\"]","el":"#waline","emoji":["https://myth.cx/walinejs/emojis/tieba"],"lang":"zh","locale":{"admin":"博主","placeholder":"无需登录也可以评论哦！建议留下邮箱，当你收到回复时会自动发送提醒！"},"reaction":true,"requiredMeta":["nick","mail"],"serverURL":"https://waline.blog.myth.cx"});
+  </script>
+
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2019 - 
+        
+        2025 Myth&#39;s Blog | Myth 的小站
+    </section>
+    
+    <section class="powerby">
+        使用 <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> 构建 <br />
+        主题 <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.30.0">Stack</a></b> 由 <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a> 设计
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://unpkg.com/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://unpkg.com/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://unpkg.com/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://unpkg.com/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://unpkg.com/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.22bc113026237a32ff87f2632dfbaea5ea9ba2ec1f74396ec449e0e54e832a7b.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

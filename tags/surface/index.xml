@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+    <channel>
+        <title>Surface on Myth&#39;s Blog | Myth 的小站</title>
+        <link>http://localhost:1313/tags/surface/</link>
+        <description>Recent content in Surface on Myth&#39;s Blog | Myth 的小站</description>
+        <generator>Hugo -- gohugo.io</generator>
+        <language>zh-cn</language>
+        <lastBuildDate>Sat, 19 Nov 2022 00:00:00 +0000</lastBuildDate><atom:link href="http://localhost:1313/tags/surface/index.xml" rel="self" type="application/rss+xml" /><item>
+        <title>禁用 Windows 11 平板模式</title>
+        <link>http://localhost:1313/p/disable-tablet-mode-in-windows-11/</link>
+        <pubDate>Sat, 19 Nov 2022 00:00:00 +0000</pubDate>
+        
+        <guid>http://localhost:1313/p/disable-tablet-mode-in-windows-11/</guid>
+        <description>&lt;img src="http://localhost:1313/p/disable-tablet-mode-in-windows-11/1.png" alt="Featured image of post 禁用 Windows 11 平板模式" /&gt;&lt;h2 id=&#34;故障&#34;&gt;故障
+&lt;/h2&gt;&lt;p&gt;微软至少在 Windows 10 就引入了平板模式。平板模式为触摸屏设备（如笔者的 Surface）进行了优化，提升了使用这些设备的体验。例如，UI 间距变大、资源管理器出现复选框等等。当然，在使用键鼠时，这些特性只会帮倒忙。&lt;/p&gt;
+&lt;p&gt;在 Windows 10，微软至少提供了一个开关在平板模式和普通模式之间切换。但在 Windows 11 中，聪明的微软让平板模式变得更强制了。例如，对于 Surface，只要没有接入 Surface 键盘，都会自动进入平板模式，且无法退出。更神奇的是，即使接入外置键盘也不行——微软依旧认为你应该使用平板模式。&lt;/p&gt;
+&lt;div style=&#34;text-align:center&#34;&gt;&lt;img src=&#34;2.png&#34; width=600/&gt;&lt;/div&gt;
+&lt;p&gt;平板模式在 Windows 11 中带来了不可关闭的资源管理器复选框，非常烦人。Chrome 等应用也变得肥大。&lt;/p&gt;
+&lt;p&gt;在 Microsoft Community 和 Reddit 上已经有不少人抱怨此事，反馈中心也有相关的反馈。但微软似乎不是很在意。并且，找了半天也没有能成功退出平板模式的方法。于是我只好自己研究一下。&lt;/p&gt;
+&lt;h2 id=&#34;解决方案&#34;&gt;解决方案
+&lt;/h2&gt;&lt;p&gt;解决方案倒是异常简单，只需要在注册表中改变一个键值。很奇怪，Microsoft Community 和 Reddit 上居然没人说。&lt;/p&gt;
+&lt;p&gt;我先查找了微软关于平板模式的文档：&lt;/p&gt;
+&lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://learn.microsoft.com/en-us/windows-hardware/design/device-experiences/continuum&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;https://learn.microsoft.com/en-us/windows-hardware/design/device-experiences/continuum&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;这个文档大概是面向驱动程序开发人员的，其中提到：&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;There are two main ways to enter/exit “tablet mode”:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Manually - The user can enter/exit “tablet mode” manually by pressing the “tablet mode” button located in Action Center.&lt;/li&gt;
+&lt;li&gt;Hardware action triggered - The OS can ask the user if they would like to enter/exit “tablet mode” if the hardware has indicated the form factor has changed through ConvertibleSlateMode.&lt;/li&gt;
+&lt;/ul&gt;&lt;/blockquote&gt;
+&lt;p&gt;看来，通过 &lt;code&gt;ConvertibleSlateMode&lt;/code&gt; 可以控制平板模式。同时，微软在 FAQ 中写道：&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;Will the auto prompt to enter/exit “tablet mode” take place upon the insertion of an external USB keyboard?&lt;/p&gt;
+&lt;p&gt;No, the auto prompt will be triggered through the toggling of the ConvertibleSlateMode value, not the presence of any kind of keyboard.&lt;/p&gt;&lt;/blockquote&gt;
+&lt;p&gt;这下破案了，只要驱动程序不去更改 &lt;code&gt;ConvertibleSlateMode&lt;/code&gt; 的值，就不会改变当前的模式。USB 键盘的驱动当然不会去改这个值了，难怪插入 USB 键盘也没用。&lt;/p&gt;
+&lt;p&gt;现在，解决方案就很明确了：将 &lt;code&gt;\HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\PriorityControl&lt;/code&gt; 中的 &lt;code&gt;ConvertibleSlateMode&lt;/code&gt; 的值改为 &lt;code&gt;1&lt;/code&gt; 即可。&lt;/p&gt;
+&lt;p&gt;我编写了一个注册表脚本去修改这个值：&lt;/p&gt;
+&lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://gist.github.com/Mythologyli/78e0b2cba3541b3f7795236e4dabb999&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;https://gist.github.com/Mythologyli/78e0b2cba3541b3f7795236e4dabb999&lt;/a&gt;&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;Windows Registry Editor Version 5.00
+
+[HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\PriorityControl]
+&amp;quot;ConvertibleSlateMode&amp;quot;=dword:00000001
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;运行一下这个脚本，你的电脑就退出平板模式啦。&lt;/p&gt;
+</description>
+        </item>
+        <item>
+        <title>修正 Surface Pro 7 低电量锁频问题</title>
+        <link>http://localhost:1313/p/fix-surface-pro-7-frequency-lock/</link>
+        <pubDate>Wed, 05 Oct 2022 00:00:00 +0000</pubDate>
+        
+        <guid>http://localhost:1313/p/fix-surface-pro-7-frequency-lock/</guid>
+        <description>&lt;img src="http://localhost:1313/p/fix-surface-pro-7-frequency-lock/1.png" alt="Featured image of post 修正 Surface Pro 7 低电量锁频问题" /&gt;&lt;h2 id=&#34;故障&#34;&gt;故障
+&lt;/h2&gt;&lt;p&gt;笔者有一台 i5 款 Surface Pro 7，平常拿来进行远程桌面、手写等轻量任务。不知从何时起，这台 Surface 出现了卡顿的现象：在电量低于 40% 左右时，整个系统异常卡顿。窗口缩放都在掉帧，只开一个远程桌面都卡成 PPT。但此时电脑并未开启省电模式。若接上电源，系统立刻恢复如初。&lt;/p&gt;
+&lt;h2 id=&#34;解决&#34;&gt;解决
+&lt;/h2&gt;&lt;p&gt;由于在高电量和接通电源时不存在卡顿，故极有可能是 CPU 锁频导致。打开任务管理器，果然，CPU 频率被限制在在 1.0 GHz 左右，不卡才怪。&lt;/p&gt;
+&lt;p&gt;大概 3 个月前给电脑装了 22H2 版的 Windows 11，因此一开始怀疑是 Windows 11 的锅。但是，搜索了一下似乎也不是这方面的问题。&lt;/p&gt;
+&lt;p&gt;在别的 Windows 设备上也没有遇到相同故障，所以还是把矛头对准了 Surface。Google 上一番搜索后，在 reddit 的 Surface 社区找到了这个，解决了问题：&lt;/p&gt;
+&lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://www.reddit.com/r/Surface/comments/fqwyrk/throttling_on_battery_from_intel_dynamic_tuning/&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;Throttling on battery from Intel Dynamic Tuning? Here&amp;rsquo;s the fix!&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;总而言之，问题是由 Intel Dynamic Tuning 引起的。它会在低电量时限制 CPU 以节省电量，但却造成了严重的卡顿。所以解决方法是：&lt;strong&gt;禁用 Intel Dynamic Tuning 服务&lt;/strong&gt;。&lt;/p&gt;
+&lt;h2 id=&#34;分析&#34;&gt;分析
+&lt;/h2&gt;&lt;p&gt;实际上，是 Intel 的 DTT 技术导致的降频，Intel 对它的介绍是：&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;英特尔® Dynamic Tuning Technology （英特尔® DTT） 是 英特尔 Adaptix ™ 技术的一 部分。&lt;/p&gt;
+&lt;p&gt;DTT 是系统软件制造商（也称为 OEM）配置的系统软件驱动程序，用于动态优化系统性能、电池续航时间和散热性能。&lt;/p&gt;
+&lt;p&gt;DTT 包含基于人工智能和机器学习的高级算法，以支持这些优化以获得性能、散热和电池续航时间。OEM 为其系统专门配置软件。DTT 并非旨在成为基于最终用户的软件，因为更改系统制造商设置可能会导致系统运行的风险。&lt;/p&gt;
+&lt;p&gt;以下是 DTT 中包含的一些技术。OEM 决定它们将如何使用 DTT 的功能以及如何配置 DTT。&lt;/p&gt;
+&lt;p&gt;DTT 技术：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;英特尔 Power Share 技术自动并动态地在英特尔处理器和英特尔®独立显卡之间分配电源，以优化性能并改善电池续航时间。&lt;/li&gt;
+&lt;li&gt;散热管理：监控功率和温度，并管理 SOC 和系统设备以在 OEM 定义的散热限制和规格内维护系统。&lt;/li&gt;
+&lt;li&gt;自适应性能：允许 OEM 根据系统事件（如交流或电池模式、翻盖型或笔记本电脑使用、OEM 性能模式等）配置 DTT 设置。&lt;/li&gt;
+&lt;li&gt;英特尔® DTT提供以下权益：&lt;/li&gt;
+&lt;li&gt;改进了电源和散热系统约束下的 CPU 和 GPU 性能&lt;/li&gt;
+&lt;li&gt;改进了 CPU 和独立 GPU 电源共享，通过将电源预算转移到 CPU 或 GPU 来提高性能，同时保持系统散热和电源预算。&lt;/li&gt;
+&lt;li&gt;智能混合工作负载功率平衡&lt;/li&gt;
+&lt;li&gt;监视和管理整体系统散热，以保持组件和系统规格。&lt;/li&gt;
+&lt;li&gt;将散热和性能策略智能动态更改作为系统配置和使用的功能。&lt;/li&gt;
+&lt;/ul&gt;&lt;/blockquote&gt;
+&lt;p&gt;Intel 声称 DTT “包含基于人工智能和机器学习的高级算法”，但看来这些算法也不怎么聪明，以致于我的 Surface 直接变得无法使用。从另一方面讲，说不定是 Microsoft 或者 Intel 为了让续航数据变得更好看而搞的损害用户体验的把戏。&lt;/p&gt;
+&lt;p&gt;关闭 DTT 可能导致一些副作用，但我也没有别的选择。希望 Microsoft 早日修复这个问题。&lt;/p&gt;
+</description>
+        </item>
+        
+    </channel>
+</rss>

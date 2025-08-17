@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+    <channel>
+        <title>低电量 on Myth&#39;s Blog | Myth 的小站</title>
+        <link>http://localhost:1313/tags/%E4%BD%8E%E7%94%B5%E9%87%8F/</link>
+        <description>Recent content in 低电量 on Myth&#39;s Blog | Myth 的小站</description>
+        <generator>Hugo -- gohugo.io</generator>
+        <language>zh-cn</language>
+        <lastBuildDate>Wed, 05 Oct 2022 00:00:00 +0000</lastBuildDate><atom:link href="http://localhost:1313/tags/%E4%BD%8E%E7%94%B5%E9%87%8F/index.xml" rel="self" type="application/rss+xml" /><item>
+        <title>修正 Surface Pro 7 低电量锁频问题</title>
+        <link>http://localhost:1313/p/fix-surface-pro-7-frequency-lock/</link>
+        <pubDate>Wed, 05 Oct 2022 00:00:00 +0000</pubDate>
+        
+        <guid>http://localhost:1313/p/fix-surface-pro-7-frequency-lock/</guid>
+        <description>&lt;img src="http://localhost:1313/p/fix-surface-pro-7-frequency-lock/1.png" alt="Featured image of post 修正 Surface Pro 7 低电量锁频问题" /&gt;&lt;h2 id=&#34;故障&#34;&gt;故障
+&lt;/h2&gt;&lt;p&gt;笔者有一台 i5 款 Surface Pro 7，平常拿来进行远程桌面、手写等轻量任务。不知从何时起，这台 Surface 出现了卡顿的现象：在电量低于 40% 左右时，整个系统异常卡顿。窗口缩放都在掉帧，只开一个远程桌面都卡成 PPT。但此时电脑并未开启省电模式。若接上电源，系统立刻恢复如初。&lt;/p&gt;
+&lt;h2 id=&#34;解决&#34;&gt;解决
+&lt;/h2&gt;&lt;p&gt;由于在高电量和接通电源时不存在卡顿，故极有可能是 CPU 锁频导致。打开任务管理器，果然，CPU 频率被限制在在 1.0 GHz 左右，不卡才怪。&lt;/p&gt;
+&lt;p&gt;大概 3 个月前给电脑装了 22H2 版的 Windows 11，因此一开始怀疑是 Windows 11 的锅。但是，搜索了一下似乎也不是这方面的问题。&lt;/p&gt;
+&lt;p&gt;在别的 Windows 设备上也没有遇到相同故障，所以还是把矛头对准了 Surface。Google 上一番搜索后，在 reddit 的 Surface 社区找到了这个，解决了问题：&lt;/p&gt;
+&lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://www.reddit.com/r/Surface/comments/fqwyrk/throttling_on_battery_from_intel_dynamic_tuning/&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;Throttling on battery from Intel Dynamic Tuning? Here&amp;rsquo;s the fix!&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;总而言之，问题是由 Intel Dynamic Tuning 引起的。它会在低电量时限制 CPU 以节省电量，但却造成了严重的卡顿。所以解决方法是：&lt;strong&gt;禁用 Intel Dynamic Tuning 服务&lt;/strong&gt;。&lt;/p&gt;
+&lt;h2 id=&#34;分析&#34;&gt;分析
+&lt;/h2&gt;&lt;p&gt;实际上，是 Intel 的 DTT 技术导致的降频，Intel 对它的介绍是：&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;英特尔® Dynamic Tuning Technology （英特尔® DTT） 是 英特尔 Adaptix ™ 技术的一 部分。&lt;/p&gt;
+&lt;p&gt;DTT 是系统软件制造商（也称为 OEM）配置的系统软件驱动程序，用于动态优化系统性能、电池续航时间和散热性能。&lt;/p&gt;
+&lt;p&gt;DTT 包含基于人工智能和机器学习的高级算法，以支持这些优化以获得性能、散热和电池续航时间。OEM 为其系统专门配置软件。DTT 并非旨在成为基于最终用户的软件，因为更改系统制造商设置可能会导致系统运行的风险。&lt;/p&gt;
+&lt;p&gt;以下是 DTT 中包含的一些技术。OEM 决定它们将如何使用 DTT 的功能以及如何配置 DTT。&lt;/p&gt;
+&lt;p&gt;DTT 技术：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;英特尔 Power Share 技术自动并动态地在英特尔处理器和英特尔®独立显卡之间分配电源，以优化性能并改善电池续航时间。&lt;/li&gt;
+&lt;li&gt;散热管理：监控功率和温度，并管理 SOC 和系统设备以在 OEM 定义的散热限制和规格内维护系统。&lt;/li&gt;
+&lt;li&gt;自适应性能：允许 OEM 根据系统事件（如交流或电池模式、翻盖型或笔记本电脑使用、OEM 性能模式等）配置 DTT 设置。&lt;/li&gt;
+&lt;li&gt;英特尔® DTT提供以下权益：&lt;/li&gt;
+&lt;li&gt;改进了电源和散热系统约束下的 CPU 和 GPU 性能&lt;/li&gt;
+&lt;li&gt;改进了 CPU 和独立 GPU 电源共享，通过将电源预算转移到 CPU 或 GPU 来提高性能，同时保持系统散热和电源预算。&lt;/li&gt;
+&lt;li&gt;智能混合工作负载功率平衡&lt;/li&gt;
+&lt;li&gt;监视和管理整体系统散热，以保持组件和系统规格。&lt;/li&gt;
+&lt;li&gt;将散热和性能策略智能动态更改作为系统配置和使用的功能。&lt;/li&gt;
+&lt;/ul&gt;&lt;/blockquote&gt;
+&lt;p&gt;Intel 声称 DTT “包含基于人工智能和机器学习的高级算法”，但看来这些算法也不怎么聪明，以致于我的 Surface 直接变得无法使用。从另一方面讲，说不定是 Microsoft 或者 Intel 为了让续航数据变得更好看而搞的损害用户体验的把戏。&lt;/p&gt;
+&lt;p&gt;关闭 DTT 可能导致一些副作用，但我也没有别的选择。希望 Microsoft 早日修复这个问题。&lt;/p&gt;
+</description>
+        </item>
+        
+    </channel>
+</rss>
