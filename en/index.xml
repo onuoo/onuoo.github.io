@@ -2,62 +2,62 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
     <channel>
         <title>Onuoo&#39;s Blog</title>
-        <link>http://localhost:1313/en/</link>
+        <link>https://onuoo.cc/en/</link>
         <description>Recent content on Onuoo&#39;s Blog</description>
         <generator>Hugo -- gohugo.io</generator>
         <language>en</language>
-        <lastBuildDate>Tue, 17 May 2022 00:00:00 +0000</lastBuildDate><atom:link href="http://localhost:1313/en/index.xml" rel="self" type="application/rss+xml" /><item>
+        <lastBuildDate>Tue, 17 May 2022 00:00:00 +0000</lastBuildDate><atom:link href="https://onuoo.cc/en/index.xml" rel="self" type="application/rss+xml" /><item>
         <title>Download Site</title>
-        <link>http://localhost:1313/en/download/</link>
+        <link>https://onuoo.cc/en/download/</link>
         <pubDate>Tue, 17 May 2022 00:00:00 +0000</pubDate>
         
-        <guid>http://localhost:1313/en/download/</guid>
-        <description>&lt;p&gt;Click &lt;a class=&#34;link&#34; href=&#34;https://cloud.akashic.cc/#s/6EcqHrhQ&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+        <guid>https://onuoo.cc/en/download/</guid>
+        <description>&lt;p&gt;Click &lt;a class=&#34;link&#34; href=&#34;https://drive.google.com/drive/folders/1ku8Xj9pZhLy1_w0Bm3InKVie-SeX3VfB?usp=drive_link&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;here&lt;/a&gt; and go!&lt;/p&gt;
 </description>
         </item>
         <item>
         <title>Message Board</title>
-        <link>http://localhost:1313/en/board/</link>
+        <link>https://onuoo.cc/en/board/</link>
         <pubDate>Mon, 16 May 2022 00:00:00 +0000</pubDate>
         
-        <guid>http://localhost:1313/en/board/</guid>
+        <guid>https://onuoo.cc/en/board/</guid>
         <description>&lt;p&gt;This is the message board!&lt;/p&gt;
 &lt;p&gt;Just say something~&lt;/p&gt;
 </description>
         </item>
         <item>
         <title>About</title>
-        <link>http://localhost:1313/en/about/</link>
+        <link>https://onuoo.cc/en/about/</link>
         <pubDate>Sun, 15 May 2022 00:00:00 +0000</pubDate>
         
-        <guid>http://localhost:1313/en/about/</guid>
+        <guid>https://onuoo.cc/en/about/</guid>
         <description>&lt;p&gt;Hello, this is Onuoo, please feel free to browse around, welcome!&lt;/p&gt;
 </description>
         </item>
         <item>
         <title>Archives</title>
-        <link>http://localhost:1313/en/archives/</link>
+        <link>https://onuoo.cc/en/archives/</link>
         <pubDate>Tue, 28 May 2019 00:00:00 +0000</pubDate>
         
-        <guid>http://localhost:1313/en/archives/</guid>
+        <guid>https://onuoo.cc/en/archives/</guid>
         <description></description>
         </item>
         <item>
         <title>Links</title>
-        <link>http://localhost:1313/en/links/</link>
+        <link>https://onuoo.cc/en/links/</link>
         <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
         
-        <guid>http://localhost:1313/en/links/</guid>
+        <guid>https://onuoo.cc/en/links/</guid>
         <description>&lt;p&gt;Find me at&amp;hellip;&lt;/p&gt;
 </description>
         </item>
         <item>
         <title>Search</title>
-        <link>http://localhost:1313/en/search/</link>
+        <link>https://onuoo.cc/en/search/</link>
         <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
         
-        <guid>http://localhost:1313/en/search/</guid>
+        <guid>https://onuoo.cc/en/search/</guid>
         <description></description>
         </item>
         

@@ -2,17 +2,17 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
     <channel>
         <title>Onuoo&#39;s Blog</title>
-        <link>http://localhost:1313/</link>
+        <link>https://onuoo.cc/</link>
         <description>Recent content on Onuoo&#39;s Blog</description>
         <generator>Hugo -- gohugo.io</generator>
         <language>zh-cn</language>
-        <lastBuildDate>Sat, 16 Aug 2025 00:00:00 +0000</lastBuildDate><atom:link href="http://localhost:1313/index.xml" rel="self" type="application/rss+xml" /><item>
+        <lastBuildDate>Sat, 16 Aug 2025 00:00:00 +0000</lastBuildDate><atom:link href="https://onuoo.cc/index.xml" rel="self" type="application/rss+xml" /><item>
         <title>哪吒美化代码</title>
-        <link>http://localhost:1313/p/na-zha-mei-hua-dai-ma/</link>
+        <link>https://onuoo.cc/p/na-zha-mei-hua-dai-ma/</link>
         <pubDate>Fri, 15 Aug 2025 00:00:00 +0000</pubDate>
         
-        <guid>http://localhost:1313/p/na-zha-mei-hua-dai-ma/</guid>
-        <description>&lt;img src="http://localhost:1313/p/na-zha-mei-hua-dai-ma/1.png" alt="Featured image of post 哪吒美化代码" /&gt;&lt;p&gt;以下是本人创作并原创发布的哪吒美化代码：&lt;/p&gt;
+        <guid>https://onuoo.cc/p/na-zha-mei-hua-dai-ma/</guid>
+        <description>&lt;img src="https://onuoo.cc/p/na-zha-mei-hua-dai-ma/1.png" alt="Featured image of post 哪吒美化代码" /&gt;&lt;p&gt;以下是本人创作并原创发布的哪吒美化代码：&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
 &lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt; 1
@@ -113,21 +113,21 @@
         </item>
         <item>
         <title>下载站</title>
-        <link>http://localhost:1313/download/</link>
+        <link>https://onuoo.cc/download/</link>
         <pubDate>Fri, 15 Aug 2025 00:00:00 +0000</pubDate>
         
-        <guid>http://localhost:1313/download/</guid>
-        <description>&lt;p&gt;点击&lt;a class=&#34;link&#34; href=&#34;https://cloud.akashic.cc/#s/6EcqHrhQ&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+        <guid>https://onuoo.cc/download/</guid>
+        <description>&lt;p&gt;点击&lt;a class=&#34;link&#34; href=&#34;https://drive.google.com/drive/folders/1ku8Xj9pZhLy1_w0Bm3InKVie-SeX3VfB?usp=drive_link&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;这里&lt;/a&gt;进入下载站！&lt;/p&gt;
 </description>
         </item>
         <item>
         <title>为移动魔百盒 GITV 生成 Kodi 可用的 M3U 源和 EPG 节目表</title>
-        <link>http://localhost:1313/p/gitv-ott-m3u-epg/</link>
+        <link>https://onuoo.cc/p/gitv-ott-m3u-epg/</link>
         <pubDate>Sun, 10 Aug 2025 00:00:00 +0000</pubDate>
         
-        <guid>http://localhost:1313/p/gitv-ott-m3u-epg/</guid>
-        <description>&lt;img src="http://localhost:1313/p/gitv-ott-m3u-epg/1.png" alt="Featured image of post 为移动魔百盒 GITV 生成 Kodi 可用的 M3U 源和 EPG 节目表" /&gt;&lt;p&gt;笔者在陕西移动办理宽带时，移动公司赠送了一个魔百盒 OTT 盒子。移动魔百盒可以通过 GITV（银河互联网电视）观看电视直播，虽比起 IPTV 延迟较高，但也有一定价值。最近在折腾 Kodi，于是想通过抓包的方式得到 GITV 的 M3U 源，以便在 Kodi 和其他设备上观看。&lt;/p&gt;
+        <guid>https://onuoo.cc/p/gitv-ott-m3u-epg/</guid>
+        <description>&lt;img src="https://onuoo.cc/p/gitv-ott-m3u-epg/1.png" alt="Featured image of post 为移动魔百盒 GITV 生成 Kodi 可用的 M3U 源和 EPG 节目表" /&gt;&lt;p&gt;笔者在陕西移动办理宽带时，移动公司赠送了一个魔百盒 OTT 盒子。移动魔百盒可以通过 GITV（银河互联网电视）观看电视直播，虽比起 IPTV 延迟较高，但也有一定价值。最近在折腾 Kodi，于是想通过抓包的方式得到 GITV 的 M3U 源，以便在 Kodi 和其他设备上观看。&lt;/p&gt;
 &lt;h2 id=&#34;抓包&#34;&gt;抓包
 &lt;/h2&gt;&lt;p&gt;抓包采用 Wireshark 进行。具体方法为：在电脑上开热点，让魔百盒连接热点，再使用 Wireshark 抓包相应的网卡。&lt;/p&gt;
 &lt;p&gt;开始抓包后，在魔百盒上打开节目点播，得到节目列表（不需要开始播放）后停止抓包。&lt;/p&gt;
@@ -663,46 +663,46 @@
         </item>
         <item>
         <title>留言板</title>
-        <link>http://localhost:1313/board/</link>
+        <link>https://onuoo.cc/board/</link>
         <pubDate>Mon, 16 May 2022 00:00:00 +0000</pubDate>
         
-        <guid>http://localhost:1313/board/</guid>
+        <guid>https://onuoo.cc/board/</guid>
         <description>&lt;p&gt;这里是留言板！&lt;/p&gt;
 &lt;p&gt;在评论区随便说点什么吧~&lt;/p&gt;
 </description>
         </item>
         <item>
         <title>关于</title>
-        <link>http://localhost:1313/about/</link>
+        <link>https://onuoo.cc/about/</link>
         <pubDate>Sun, 15 May 2022 00:00:00 +0000</pubDate>
         
-        <guid>http://localhost:1313/about/</guid>
+        <guid>https://onuoo.cc/about/</guid>
         <description>&lt;p&gt;你好，这里是 Onuoo，请随意逛逛，欢迎光临！&lt;/p&gt;
 </description>
         </item>
         <item>
         <title>文章</title>
-        <link>http://localhost:1313/archives/</link>
+        <link>https://onuoo.cc/archives/</link>
         <pubDate>Tue, 28 May 2019 00:00:00 +0000</pubDate>
         
-        <guid>http://localhost:1313/archives/</guid>
+        <guid>https://onuoo.cc/archives/</guid>
         <description></description>
         </item>
         <item>
         <title>链接</title>
-        <link>http://localhost:1313/links/</link>
+        <link>https://onuoo.cc/links/</link>
         <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
         
-        <guid>http://localhost:1313/links/</guid>
+        <guid>https://onuoo.cc/links/</guid>
         <description>&lt;p&gt;发现其他地方的我！&lt;/p&gt;
 </description>
         </item>
         <item>
         <title>搜索</title>
-        <link>http://localhost:1313/search/</link>
+        <link>https://onuoo.cc/search/</link>
         <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
         
-        <guid>http://localhost:1313/search/</guid>
+        <guid>https://onuoo.cc/search/</guid>
         <description></description>
         </item>
         

@@ -2,17 +2,17 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
     <channel>
         <title>移动魔百盒 on Onuoo&#39;s Blog</title>
-        <link>http://localhost:1313/tags/%E7%A7%BB%E5%8A%A8%E9%AD%94%E7%99%BE%E7%9B%92/</link>
+        <link>https://onuoo.cc/tags/%E7%A7%BB%E5%8A%A8%E9%AD%94%E7%99%BE%E7%9B%92/</link>
         <description>Recent content in 移动魔百盒 on Onuoo&#39;s Blog</description>
         <generator>Hugo -- gohugo.io</generator>
         <language>zh-cn</language>
-        <lastBuildDate>Sun, 10 Aug 2025 00:00:00 +0000</lastBuildDate><atom:link href="http://localhost:1313/tags/%E7%A7%BB%E5%8A%A8%E9%AD%94%E7%99%BE%E7%9B%92/index.xml" rel="self" type="application/rss+xml" /><item>
+        <lastBuildDate>Sun, 10 Aug 2025 00:00:00 +0000</lastBuildDate><atom:link href="https://onuoo.cc/tags/%E7%A7%BB%E5%8A%A8%E9%AD%94%E7%99%BE%E7%9B%92/index.xml" rel="self" type="application/rss+xml" /><item>
         <title>为移动魔百盒 GITV 生成 Kodi 可用的 M3U 源和 EPG 节目表</title>
-        <link>http://localhost:1313/p/gitv-ott-m3u-epg/</link>
+        <link>https://onuoo.cc/p/gitv-ott-m3u-epg/</link>
         <pubDate>Sun, 10 Aug 2025 00:00:00 +0000</pubDate>
         
-        <guid>http://localhost:1313/p/gitv-ott-m3u-epg/</guid>
-        <description>&lt;img src="http://localhost:1313/p/gitv-ott-m3u-epg/1.png" alt="Featured image of post 为移动魔百盒 GITV 生成 Kodi 可用的 M3U 源和 EPG 节目表" /&gt;&lt;p&gt;笔者在陕西移动办理宽带时，移动公司赠送了一个魔百盒 OTT 盒子。移动魔百盒可以通过 GITV（银河互联网电视）观看电视直播，虽比起 IPTV 延迟较高，但也有一定价值。最近在折腾 Kodi，于是想通过抓包的方式得到 GITV 的 M3U 源，以便在 Kodi 和其他设备上观看。&lt;/p&gt;
+        <guid>https://onuoo.cc/p/gitv-ott-m3u-epg/</guid>
+        <description>&lt;img src="https://onuoo.cc/p/gitv-ott-m3u-epg/1.png" alt="Featured image of post 为移动魔百盒 GITV 生成 Kodi 可用的 M3U 源和 EPG 节目表" /&gt;&lt;p&gt;笔者在陕西移动办理宽带时，移动公司赠送了一个魔百盒 OTT 盒子。移动魔百盒可以通过 GITV（银河互联网电视）观看电视直播，虽比起 IPTV 延迟较高，但也有一定价值。最近在折腾 Kodi，于是想通过抓包的方式得到 GITV 的 M3U 源，以便在 Kodi 和其他设备上观看。&lt;/p&gt;
 &lt;h2 id=&#34;抓包&#34;&gt;抓包
 &lt;/h2&gt;&lt;p&gt;抓包采用 Wireshark 进行。具体方法为：在电脑上开热点，让魔百盒连接热点，再使用 Wireshark 抓包相应的网卡。&lt;/p&gt;
 &lt;p&gt;开始抓包后，在魔百盒上打开节目点播，得到节目列表（不需要开始播放）后停止抓包。&lt;/p&gt;

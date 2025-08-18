@@ -2,41 +2,41 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
     <channel>
         <title>Categories on Onuoo&#39;s Blog</title>
-        <link>http://localhost:1313/categories/</link>
+        <link>https://onuoo.cc/categories/</link>
         <description>Recent content in Categories on Onuoo&#39;s Blog</description>
         <generator>Hugo -- gohugo.io</generator>
         <language>zh-cn</language>
-        <lastBuildDate>Fri, 15 Aug 2025 00:00:00 +0000</lastBuildDate><atom:link href="http://localhost:1313/categories/index.xml" rel="self" type="application/rss+xml" /><item>
+        <lastBuildDate>Fri, 15 Aug 2025 00:00:00 +0000</lastBuildDate><atom:link href="https://onuoo.cc/categories/index.xml" rel="self" type="application/rss+xml" /><item>
         <title>技术</title>
-        <link>http://localhost:1313/categories/tech/</link>
+        <link>https://onuoo.cc/categories/tech/</link>
         <pubDate>Fri, 15 Aug 2025 00:00:00 +0000</pubDate>
         
-        <guid>http://localhost:1313/categories/tech/</guid>
-        <description>&lt;img src="http://localhost:1313/categories/tech/console.svg" alt="Featured image of post 技术" /&gt;</description>
+        <guid>https://onuoo.cc/categories/tech/</guid>
+        <description>&lt;img src="https://onuoo.cc/categories/tech/console.svg" alt="Featured image of post 技术" /&gt;</description>
         </item>
         <item>
         <title>电影</title>
-        <link>http://localhost:1313/categories/movie/</link>
+        <link>https://onuoo.cc/categories/movie/</link>
         <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
         
-        <guid>http://localhost:1313/categories/movie/</guid>
-        <description>&lt;img src="http://localhost:1313/categories/movie/movie.svg" alt="Featured image of post 电影" /&gt;</description>
+        <guid>https://onuoo.cc/categories/movie/</guid>
+        <description>&lt;img src="https://onuoo.cc/categories/movie/movie.svg" alt="Featured image of post 电影" /&gt;</description>
         </item>
         <item>
         <title>随笔</title>
-        <link>http://localhost:1313/categories/essay/</link>
+        <link>https://onuoo.cc/categories/essay/</link>
         <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
         
-        <guid>http://localhost:1313/categories/essay/</guid>
-        <description>&lt;img src="http://localhost:1313/categories/essay/paper.svg" alt="Featured image of post 随笔" /&gt;</description>
+        <guid>https://onuoo.cc/categories/essay/</guid>
+        <description>&lt;img src="https://onuoo.cc/categories/essay/paper.svg" alt="Featured image of post 随笔" /&gt;</description>
         </item>
         <item>
         <title>音乐</title>
-        <link>http://localhost:1313/categories/music/</link>
+        <link>https://onuoo.cc/categories/music/</link>
         <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
         
-        <guid>http://localhost:1313/categories/music/</guid>
-        <description>&lt;img src="http://localhost:1313/categories/music/music.svg" alt="Featured image of post 音乐" /&gt;</description>
+        <guid>https://onuoo.cc/categories/music/</guid>
+        <description>&lt;img src="https://onuoo.cc/categories/music/music.svg" alt="Featured image of post 音乐" /&gt;</description>
         </item>
         
     </channel>
